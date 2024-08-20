@@ -7,5 +7,9 @@
   },
   "bugs": {
     "url": "https://github.com/Azure/communication-ui-library/issues/new/choose"
+  },
+  "scripts": {
+    "setup": "npm i -g @microsoft/rush && rush update",
+    "build-and-package": "rush build -t @azure/communication-react && cd packages/communication-react && npm pack"
   }
 }
