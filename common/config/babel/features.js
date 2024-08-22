@@ -24,12 +24,9 @@ module.exports = {
     // feature for breakout rooms
     "breakout-rooms",
     // Feature for remote UFD
-    "remote-ufd",
-    // Feature for showing dtmp dialer by default
-    "dtmf-dialer-on-by-default"
+    "remote-ufd"
   ],
   beta: [
-    "call-readiness",
     // Flag to add API only available in beta calling SDK to mocks and internal types.
     // This feature should be stabilized whenever calling SDK is stabilized.
     "calling-beta-sdk",
@@ -103,6 +100,9 @@ module.exports = {
     // Get join conference information
     'teams-meeting-conference',
     // Feature for showing notifications
-    "notifications"
+    "notifications",
+    // Feature for showing dtmp dialer by default
+    "dtmf-dialer-on-by-default",
+    "call-readiness",
   ]
 }
