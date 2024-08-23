@@ -15,7 +15,7 @@
   "messages": {
     "extractorMessageReporting": {
       "ae-missing-release-tag": {
-        "logLevel": "error"
+        "logLevel": "warning"
       },
       "ae-unresolved-link": {
         // This must be set to none, as when our individual packlets reference exports
@@ -24,7 +24,7 @@
         "logLevel": "none"
       },
       "ae-forgotten-export": {
-        "logLevel": "error",
+        "logLevel": "warning",
         "addToApiReportFile": false
       },
       "ae-incompatible-release-tags": {

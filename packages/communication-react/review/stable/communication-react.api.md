@@ -3611,6 +3611,14 @@ export interface RecordingCallFeature {
 }
 
 // @public
+export interface RemoteAudioStreamState {
+    // (undocumented)
+    volume?: {
+        level?: number;
+    };
+}
+
+// @public
 export interface RemoteParticipantState {
     callEndReason?: CallEndReason;
     contentSharingStream?: HTMLElement;

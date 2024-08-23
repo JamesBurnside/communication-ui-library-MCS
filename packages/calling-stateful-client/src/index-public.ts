@@ -18,6 +18,7 @@ export type {
   MediaDiagnosticsState,
   NetworkDiagnosticsState,
   RecordingCallFeatureState as RecordingCallFeature,
+  RemoteAudioStreamState,
   RemoteParticipantState,
   RemoteVideoStreamState,
   TranscriptionCallFeatureState as TranscriptionCallFeature,
