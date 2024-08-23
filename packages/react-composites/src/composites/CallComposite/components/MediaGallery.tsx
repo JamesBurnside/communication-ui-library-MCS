@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { CSSProperties, useCallback, useMemo } from 'react';
+import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react';
 import { useRef } from 'react';
 import {
   VideoGallery,
@@ -15,12 +15,12 @@ import { VideoGalleryLayout } from '@internal/react-components';
 import { _useContainerWidth, _useContainerHeight } from '@internal/react-components';
 import { usePropsFor } from '../hooks/usePropsFor';
 import { AvatarPersona, AvatarPersonaDataCallback } from '../../common/AvatarPersona';
-import { mergeStyles, Stack } from '@fluentui/react';
+import { keyframes, memoizeFunction, mergeStyles, Stack } from '@fluentui/react';
 import { useHandlers } from '../hooks/useHandlers';
 import { useSelector } from '../hooks/useSelector';
 import { localVideoCameraCycleButtonSelector } from '../selectors/LocalVideoTileSelector';
 import { LocalVideoCameraCycleButton } from '@internal/react-components';
-import { _formatString } from '@internal/acs-ui-common';
+import { _formatString, toFlatCommunicationIdentifier } from '@internal/acs-ui-common';
 import { useParticipantChangedAnnouncement } from '../utils/MediaGalleryUtils';
 import { RemoteVideoTileMenuOptions } from '../CallComposite';
 import { LocalVideoTileOptions } from '../CallComposite';
@@ -106,19 +106,49 @@ export const MediaGallery = (props: MediaGalleryProps): JSX.Element => {
     };
   }, [cameraSwitcherCallback, cameraSwitcherCameras]);
 
+  const remoteParticipantsAndIsSpeaking = useMemo(
+    () =>
+      videoGalleryProps.remoteParticipants.map((participant) => {
+        return { id: participant.userId, isSpeaking: participant.isSpeaking };
+      }),
+    [videoGalleryProps.remoteParticipants]
+  );
+
+  const volumeLevel = React.useRef<number>(0.5);
+  const pulseDiv = React.useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    function updatePulse(volume: number): void {
+      // const scale = 1 + volume * 0.5; // Scale between 1 and 1.5 based on volume
+      const opacity = 1 - volume * 0.3; // Opacity decreases as volume increases
+
+      pulseDiv.current?.style.setProperty('--scale', '1.1'); //scale.toString());
+      pulseDiv.current?.style.setProperty('--opacity', opacity.toString());
+    }
+
+    updatePulse(volumeLevel.current);
+  }, [pulseDiv, remoteParticipantsAndIsSpeaking]);
+
   const onRenderAvatar = useCallback(
     (userId?: string, options?: CustomAvatarOptions) => {
+      const showSpeakingAnimation = remoteParticipantsAndIsSpeaking.some(
+        (participant) => participant.id === userId && participant.isSpeaking
+      );
       return (
         <Stack className={mergeStyles({ position: 'absolute', height: '100%', width: '100%' })}>
           <Stack styles={{ root: { margin: 'auto', maxHeight: '100%' } }}>
             {options?.coinSize && (
-              <AvatarPersona userId={userId} {...options} dataProvider={props.onFetchAvatarPersonaData} />
+              <div
+                className={showSpeakingAnimation ? pulsingAudioClassname : undefined}
+                ref={showSpeakingAnimation ? pulseDiv : undefined}
+              >
+                <AvatarPersona userId={userId} {...options} dataProvider={props.onFetchAvatarPersonaData} />
+              </div>
             )}
           </Stack>
         </Stack>
       );
     },
-    [props.onFetchAvatarPersonaData]
+    [props.onFetchAvatarPersonaData, remoteParticipantsAndIsSpeaking]
   );
 
   const remoteVideoTileMenuOptions: false | VideoTileContextualMenuProps | VideoTileDrawerMenuProps = useMemo(() => {
@@ -258,3 +288,35 @@ const mediaGalleryContainerStyles: CSSProperties = { width: '100%', height: '100
 const getVideoGalleryLayoutBasedOnLocalOptions = (localTileOptions?: string): VideoGalleryLayout => {
   return localTileOptions === 'grid' ? 'default' : 'floatingLocalVideo';
 };
+
+/** @private */
+export const pulseFrames = memoizeFunction(() =>
+  keyframes({
+    '0%': { transform: 'scale(1)', opacity: 1 },
+    '50%': { transform: 'scale(var(--scale))', opacity: 'var(--opacity)' },
+    '100%': { transform: 'scale(1)', opacity: 1 }
+  })
+);
+
+/** @private */
+export const pulsingAudioClassname = mergeStyles({
+  borderRadius: '50%',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  position: 'relative',
+  padding: '1rem',
+  '::before': {
+    content: '""',
+    width: '100%',
+    height: '100%',
+    // backgroundColor: 'rgba(7, 127, 171, 0.7)',
+    border: '0.25rem solid rgba(7, 127, 171, 0.7)',
+    borderRadius: '50%',
+    position: 'absolute',
+    animationName: pulseFrames(),
+    animationDuration: '1.5s',
+    animationIterationCount: 'infinite',
+    animationTimingFunction: 'ease-in-out'
+  }
+});
