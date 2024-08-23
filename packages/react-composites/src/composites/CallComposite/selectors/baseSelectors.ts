@@ -33,6 +33,15 @@ import { CommunicationIdentifier } from '@azure/communication-common';
 /* @conditional-compile-remove(acs-close-captions) */
 import { CaptionsKind } from '@azure/communication-calling';
 
+const IS_SPEAKING_VOLUME_THRESHOLD = 2.5;
+
+/**
+ * @private
+ */
+export const getIsRemoteAudioActive = (state: CallAdapterState): boolean => {
+  return (state.call?.remoteAudioStream.volume?.level ?? 0) > IS_SPEAKING_VOLUME_THRESHOLD;
+};
+
 /**
  * @private
  */

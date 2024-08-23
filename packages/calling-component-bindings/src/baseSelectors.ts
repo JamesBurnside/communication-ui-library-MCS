@@ -97,6 +97,15 @@ export const getRemoteParticipants = (
   return state.calls[props.callId]?.remoteParticipants;
 };
 
+const IS_SPEAKING_VOLUME_THRESHOLD = 2.5;
+
+/**
+ * @private
+ */
+export const getIsRemoteAudioActive = (state: CallClientState, props: CallingBaseSelectorProps): boolean => {
+  return (state.calls[props.callId]?.remoteAudioStream.volume?.level ?? 0) > IS_SPEAKING_VOLUME_THRESHOLD;
+};
+
 /**
  * @private
  */

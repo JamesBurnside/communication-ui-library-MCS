@@ -11,6 +11,7 @@ import {
   getDominantSpeakers,
   getIdentifier,
   getIsMuted,
+  getIsRemoteAudioActive,
   getIsScreenSharingOn,
   getLocalVideoStreams,
   getRole,
@@ -73,7 +74,8 @@ export const videoGallerySelector: VideoGallerySelector = createSelector(
     isHideAttendeeNamesEnabled,
     getLocalParticipantReactionState,
     getSpotlightCallFeature,
-    getCapabilities
+    getCapabilities,
+    getIsRemoteAudioActive
   ],
   (
     screenShareRemoteParticipantId,
@@ -91,7 +93,8 @@ export const videoGallerySelector: VideoGallerySelector = createSelector(
     isHideAttendeeNamesEnabled,
     localParticipantReaction,
     spotlightCallFeature,
-    capabilities
+    capabilities,
+    remoteAudioActive
   ) => {
     const screenShareRemoteParticipant =
       screenShareRemoteParticipantId && remoteParticipants
@@ -111,7 +114,7 @@ export const videoGallerySelector: VideoGallerySelector = createSelector(
         ? convertRemoteParticipantToVideoGalleryRemoteParticipant(
             toFlatCommunicationIdentifier(screenShareRemoteParticipant.identifier),
             screenShareRemoteParticipant.isMuted,
-            checkIsSpeaking(screenShareRemoteParticipant),
+            checkIsSpeaking(screenShareRemoteParticipant, remoteAudioActive),
             screenShareRemoteParticipant.videoStreams,
             screenShareRemoteParticipant.state,
             screenShareRemoteParticipant.displayName,
@@ -136,6 +139,7 @@ export const videoGallerySelector: VideoGallerySelector = createSelector(
       ),
       remoteParticipants: _videoGalleryRemoteParticipantsMemo(
         updateUserDisplayNamesTrampoline(remoteParticipants ? Object.values(remoteParticipants) : noRemoteParticipants),
+        remoteAudioActive,
         /* @conditional-compile-remove(hide-attendee-name) */
         isHideAttendeeNamesEnabled,
         /* @conditional-compile-remove(hide-attendee-name) */

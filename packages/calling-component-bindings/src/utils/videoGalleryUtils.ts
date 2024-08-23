@@ -30,6 +30,7 @@ export const _dominantSpeakersWithFlatId = (dominantSpeakers?: DominantSpeakersI
 /** @internal */
 export type _VideoGalleryRemoteParticipantsMemoFn = (
   remoteParticipants: RemoteParticipantState[] | undefined,
+  isRemoteAudioActive: boolean,
   /* @conditional-compile-remove(hide-attendee-name) */
   isHideAttendeeNamesEnabled?: boolean,
   /* @conditional-compile-remove(hide-attendee-name) */
@@ -39,6 +40,7 @@ export type _VideoGalleryRemoteParticipantsMemoFn = (
 /** @internal */
 export const _videoGalleryRemoteParticipantsMemo: _VideoGalleryRemoteParticipantsMemoFn = (
   remoteParticipants: RemoteParticipantState[] | undefined,
+  isRemoteAudioActive: boolean,
   isHideAttendeeNamesEnabled?: boolean,
   /* @conditional-compile-remove(hide-attendee-name) */ localUserRole?
 ): VideoGalleryRemoteParticipant[] => {
@@ -74,7 +76,7 @@ export const _videoGalleryRemoteParticipantsMemo: _VideoGalleryRemoteParticipant
           return memoizedFn(
             toFlatCommunicationIdentifier(participant.identifier),
             participant.isMuted,
-            checkIsSpeaking(participant),
+            checkIsSpeaking(participant, isRemoteAudioActive),
             participant.videoStreams,
             state,
             displayName,

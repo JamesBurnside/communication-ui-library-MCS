@@ -267,7 +267,8 @@ const createDefaultCallAdapterState = (role?: ParticipantRole): CallAdapterState
       },
       optimalVideoCount: {
         maxRemoteVideoStreams: 4
-      }
+      },
+      remoteAudioStream: {}
     },
     userId: { kind: 'communicationUser', communicationUserId: '1' },
     devices: {

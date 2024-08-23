@@ -112,7 +112,8 @@ function createMockCall(mockCallId: string): CallState {
     optimalVideoCount: {
       maxRemoteVideoStreams: 4
     },
-    pptLive: { isActive: false }
+    pptLive: { isActive: false },
+    remoteAudioStream: {}
   };
   return call;
 }

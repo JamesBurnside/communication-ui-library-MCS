@@ -5,7 +5,7 @@ import { toFlatCommunicationIdentifier } from '@internal/acs-ui-common';
 import { RemoteParticipantState } from '@internal/calling-stateful-client';
 import * as reselect from 'reselect';
 import { getRemoteParticipants, getSpotlightedParticipants } from './baseSelectors';
-import { _updateUserDisplayNames, _videoGalleryRemoteParticipantsMemo } from '@internal/calling-component-bindings';
+import { _updateUserDisplayNames } from '@internal/calling-component-bindings';
 
 /**
  * Get the first remote participant that is spotlighted if any

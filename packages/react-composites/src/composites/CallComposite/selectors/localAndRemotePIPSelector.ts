@@ -8,7 +8,7 @@ import { RemoteParticipantState } from '@internal/calling-stateful-client';
 import * as reselect from 'reselect';
 import { localVideoSelector } from './localVideoStreamSelector';
 import { dominantRemoteParticipantSelector } from './dominantRemoteParticipantSelector';
-import { getDisplayName } from './baseSelectors';
+import { getDisplayName, getIsRemoteAudioActive } from './baseSelectors';
 import { getLocalParticipantRaisedHand } from './baseSelectors';
 import { getFirstSpotlightedRemoteParticipant } from './getFirstSpotlightedRemoteParticipantSelector';
 
@@ -22,21 +22,26 @@ export const localAndRemotePIPSelector = reselect.createSelector(
     dominantRemoteParticipantSelector,
     localVideoSelector,
     getLocalParticipantRaisedHand,
-    getFirstSpotlightedRemoteParticipant
+    getFirstSpotlightedRemoteParticipant,
+    getIsRemoteAudioActive
   ],
   (
     displayName,
     dominantRemoteParticipantState,
     localVideoStreamInfo,
     raisedHand,
-    firstSpotlightedRemoteParticipantState
+    firstSpotlightedRemoteParticipantState,
+    remoteAudioActive
   ) => {
     let remoteParticipantState = dominantRemoteParticipantState;
     if (firstSpotlightedRemoteParticipantState) {
       remoteParticipantState = firstSpotlightedRemoteParticipantState;
     }
     const remoteParticipant = remoteParticipantState
-      ? _videoGalleryRemoteParticipantsMemo(updateUserDisplayNamesTrampoline([remoteParticipantState]))[0]
+      ? _videoGalleryRemoteParticipantsMemo(
+          updateUserDisplayNamesTrampoline([remoteParticipantState]),
+          remoteAudioActive
+        )[0]
       : undefined;
     return {
       localParticipant: {

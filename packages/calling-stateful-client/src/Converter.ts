@@ -190,7 +190,8 @@ export function convertSdkCallToDeclarativeCall(call: CallCommon): CallState {
     hideAttendeeNames,
     info: callInfo,
     /* @conditional-compile-remove(teams-meeting-conference) */
-    meetingConference: { conferencePhones: [] }
+    meetingConference: { conferencePhones: [] },
+    remoteAudioStream: {}
   };
 }
 

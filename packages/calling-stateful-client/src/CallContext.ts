@@ -815,6 +815,20 @@ export class CallContext {
     });
   }
 
+  public setRemoteAudioVolumeLevel(callId: string, volumeLevel: number | undefined): void {
+    this.modifyState((draft: CallClientState) => {
+      const call = draft.calls[this._callIdHistory.latestCallId(callId)];
+      if (call) {
+        const stream = call.remoteAudioStream;
+        if (!stream.volume) {
+          stream.volume = { level: volumeLevel };
+        } else {
+          stream.volume.level = volumeLevel;
+        }
+      }
+    });
+  }
+
   public setRemoteVideoStreamSize(
     callId: string,
     participantKey: string,

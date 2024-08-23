@@ -261,7 +261,8 @@ function createMockCall(mockCallId: string): CallState {
     },
     optimalVideoCount: {
       maxRemoteVideoStreams: 4
-    }
+    },
+    remoteAudioStream: {}
   };
   return call;
 }

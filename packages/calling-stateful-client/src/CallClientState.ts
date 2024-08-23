@@ -398,6 +398,17 @@ export interface RemoteVideoStreamState {
 }
 
 /**
+ * State only version of {@link @azure/communication-calling#RemoteAudioStream}.
+ *
+ * @public
+ */
+export interface RemoteAudioStreamState {
+  volume?: {
+    level?: number;
+  };
+}
+
+/**
  * State only version of {@link @azure/communication-calling#VideoStreamRendererView}. This property is added to the state exposed
  * by {@link StatefulCallClient} by {@link StatefulCallClient.createView} and removed by {@link StatefulCallClient.disposeView}.
  *
@@ -548,6 +559,11 @@ export interface CallState {
    * {@link @azure/communication-react#toFlatCommunicationIdentifier}.
    */
   remoteParticipantsEnded: { [keys: string]: RemoteParticipantState };
+  /**
+   * State of {@link @azure/communication-calling#Call.remoteAudioStreams}
+   * {@link @azure/communication-react#toFlatCommunicationIdentifier}.
+   */
+  remoteAudioStream: RemoteAudioStreamState;
   /**
    * Proxy of {@link @azure/communication-calling#TranscriptionCallFeature}.
    */

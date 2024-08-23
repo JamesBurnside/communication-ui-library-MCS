@@ -2,12 +2,18 @@
 // Licensed under the MIT License.
 
 import { GroupCallLocator, TeamsMeetingLinkLocator } from '@azure/communication-calling';
-import { CallAdapterLocator, CallComposite, CallCompositeOptions, CommonCallAdapter } from '@azure/communication-react';
+import {
+  AvatarPersonaData,
+  CallAdapterLocator,
+  CallComposite,
+  CallCompositeOptions,
+  CommonCallAdapter,
+  toFlatCommunicationIdentifier
+} from '@azure/communication-react';
 import { Spinner, Stack } from '@fluentui/react';
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { useSwitchableFluentTheme } from '../theming/SwitchableFluentThemeProvider';
 import { useIsMobile } from '../utils/useIsMobile';
-import { isIOS } from '../utils/utils';
 import { CallScreenProps } from './CallScreen';
 
 export type CallCompositeContainerProps = CallScreenProps & { adapter?: CommonCallAdapter };
@@ -16,7 +22,6 @@ export const CallCompositeContainer = (props: CallCompositeContainerProps): JSX.
   const { adapter } = props;
   const { currentTheme, currentRtl } = useSwitchableFluentTheme();
   const isMobileSession = useIsMobile();
-  const shouldHideScreenShare = isMobileSession || isIOS();
 
   useEffect(() => {
     /**
@@ -37,18 +42,20 @@ export const CallCompositeContainer = (props: CallCompositeContainerProps): JSX.
 
   const options: CallCompositeOptions = useMemo(
     () => ({
-      /* @conditional-compile-remove(call-readiness) */ onPermissionsTroubleshootingClick,
-      /* @conditional-compile-remove(call-readiness) */ onNetworkingTroubleShootingClick,
       callControls: {
-        screenShareButton: shouldHideScreenShare ? false : undefined,
-        /* @conditional-compile-remove(end-call-options) */
-        endCallButton: {
-          hangUpForEveryone: 'endCallOptions'
-        }
+        cameraButton: false,
+        raiseHandButton: false,
+        screenShareButton: false,
+        moreButton: false,
+        reactionButton: false
+      },
+      deviceChecks: {
+        camera: 'doNotPrompt',
+        microphone: 'required'
       },
       autoShowDtmfDialer: true
     }),
-    [shouldHideScreenShare]
+    []
   );
 
   // Dispose of the adapter in the window's before unload event.
@@ -59,6 +66,23 @@ export const CallCompositeContainer = (props: CallCompositeContainerProps): JSX.
     window.addEventListener('beforeunload', disposeAdapter);
     return () => window.removeEventListener('beforeunload', disposeAdapter);
   }, [adapter]);
+
+  const userId = adapter?.getState().userId;
+  const setCopilotImage = useCallback(
+    async (uId: string): Promise<AvatarPersonaData> => {
+      // If the user is not the current user - assume to be the copilot bot.
+      // Ideally we know the bot MRI and can directly check for this.
+      if (userId && uId !== toFlatCommunicationIdentifier(userId)) {
+        return {
+          text: 'Copilot',
+          imageUrl: 'https://r.bing.com/rp/nthuaHo_0CMpu-jrRrRx7PLDd10.svg'
+        };
+      } else {
+        return {};
+      }
+    },
+    [userId]
+  );
 
   if (!adapter) {
     return (
@@ -82,25 +106,8 @@ export const CallCompositeContainer = (props: CallCompositeContainerProps): JSX.
       callInvitationUrl={callInvitationUrl}
       formFactor={isMobileSession ? 'mobile' : 'desktop'}
       options={options}
+      onFetchAvatarPersonaData={setCopilotImage}
     />
-  );
-};
-
-/* @conditional-compile-remove(call-readiness) */
-const onPermissionsTroubleshootingClick = (permissionState: {
-  camera: PermissionState;
-  microphone: PermissionState;
-}): void => {
-  console.log(permissionState);
-  alert(
-    'Troubleshooting clicked! This is just a sample. In your production application replace this with a link that opens a new tab to a troubleshooting guide.'
-  );
-};
-
-/* @conditional-compile-remove(call-readiness) */
-const onNetworkingTroubleShootingClick = (): void => {
-  alert(
-    'Troubleshooting clicked! This is just a sample. In your production application replace this with a link that opens a new tab to a troubleshooting guide.'
   );
 };
 

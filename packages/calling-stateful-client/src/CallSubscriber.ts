@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { Features, LocalVideoStream, RemoteParticipant } from '@azure/communication-calling';
+import { Features, LocalVideoStream, RemoteAudioStream, RemoteParticipant } from '@azure/communication-calling';
 import { toFlatCommunicationIdentifier } from '@internal/acs-ui-common';
 import { CallCommon } from './BetaToStableTypes';
 import { CallContext } from './CallContext';
@@ -30,6 +30,7 @@ import { SpotlightSubscriber } from './SpotlightSubscriber';
 import { LocalRecordingSubscriber } from './LocalRecordingSubscriber';
 /* @conditional-compile-remove(breakout-rooms) */
 import { BreakoutRoomsSubscriber } from './BreakoutRoomsSubscriber';
+import { RemoteAudioStreamSubscriber } from './RemoteAudioStreamSubscriber';
 
 /**
  * Keeps track of the listeners assigned to a particular call because when we get an event from SDK, it doesn't tell us
@@ -60,6 +61,7 @@ export class CallSubscriber {
   private _spotlightSubscriber: SpotlightSubscriber;
   /* @conditional-compile-remove(breakout-rooms) */
   private _breakoutRoomsSubscriber: BreakoutRoomsSubscriber;
+  private _remoteAudioStreamSubscriber: RemoteAudioStreamSubscriber | undefined;
 
   constructor(call: CallCommon, context: CallContext, internalContext: InternalCallContext) {
     this._call = call;
@@ -73,6 +75,7 @@ export class CallSubscriber {
       this._call.feature(Features.UserFacingDiagnostics)
     );
     this._participantSubscribers = new Map<string, ParticipantSubscriber>();
+
     this._recordingSubscriber = new RecordingSubscriber(
       this._callIdRef,
       this._context,
@@ -142,6 +145,11 @@ export class CallSubscriber {
     /* @conditional-compile-remove(soft-mute) */
     this._call.on('mutedByOthers', this.mutedByOthersHandler);
 
+    if (this._call.remoteAudioStreams.length > 0) {
+      this.setRemoteAudioStreamListener(this._call.remoteAudioStreams[0]);
+    }
+    this._call.on('remoteAudioStreamsUpdated', this.remoteAudioStreamsUpdated);
+
     for (const localVideoStream of this._call.localVideoStreams) {
       this._internalContext.setLocalRenderInfo(
         this._callIdRef.callId,
@@ -187,6 +195,9 @@ export class CallSubscriber {
       participantSubscriber.unsubscribe();
     });
     this._participantSubscribers.clear();
+
+    this.removeRemoteAudioStreamListener();
+    this._call.off('remoteAudioStreamsUpdated', this.remoteAudioStreamsUpdated);
 
     // If we are unsubscribing that means we no longer want to display any video for this call (callEnded or callAgent
     // disposed) and we should not be updating it any more. So if video is rendering we stop rendering.
@@ -234,6 +245,22 @@ export class CallSubscriber {
     if (participantSubscriber) {
       participantSubscriber.unsubscribe();
       this._participantSubscribers.delete(participantKey);
+    }
+  }
+
+  private setRemoteAudioStreamListener(remoteAudioStream: RemoteAudioStream): void {
+    this._remoteAudioStreamSubscriber?.unsubscribe();
+    this._remoteAudioStreamSubscriber = new RemoteAudioStreamSubscriber(
+      this._callIdRef,
+      remoteAudioStream,
+      this._context
+    );
+  }
+
+  private removeRemoteAudioStreamListener(): void {
+    if (this._remoteAudioStreamSubscriber) {
+      this._remoteAudioStreamSubscriber.unsubscribe();
+      this._remoteAudioStreamSubscriber = undefined;
     }
   }
 
@@ -301,6 +328,15 @@ export class CallSubscriber {
   /* @conditional-compile-remove(total-participant-count) */
   private totalParticipantCountChangedHandler = (): void => {
     this._context.setTotalParticipantCount(this._callIdRef.callId, this._call.totalParticipantCount);
+  };
+
+  private remoteAudioStreamsUpdated = (event: { added: RemoteAudioStream[]; removed: RemoteAudioStream[] }): void => {
+    event.added.forEach((remoteAudioStream: RemoteAudioStream) => {
+      this.setRemoteAudioStreamListener(remoteAudioStream);
+    });
+    event.removed.forEach(() => {
+      this.removeRemoteAudioStreamListener();
+    });
   };
 
   // TODO: Tee to notification state once available

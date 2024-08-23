@@ -48,6 +48,7 @@ import { IContextualMenuItemStyles } from '@fluentui/react';
 import { IContextualMenuProps } from '@fluentui/react';
 import { IContextualMenuStyles } from '@fluentui/react';
 import { IIconProps } from '@fluentui/react';
+import { ILinkStyles } from '@fluentui/react';
 import { IMessageBarProps } from '@fluentui/react';
 import { IncomingCallKind } from '@azure/communication-calling';
 import { IPersonaStyleProps } from '@fluentui/react';
@@ -230,6 +231,49 @@ export interface BaseCompositeProps<TIcons extends Record<string, JSX.Element>> 
 // @public
 export interface BaseCustomStyles {
     root?: IStyle;
+}
+
+// @beta
+export interface BrowserPermissionDeniedIOSProps extends BrowserPermissionDeniedProps {
+    imageSource?: string;
+    strings?: BrowserPermissionDeniedIOSStrings;
+}
+
+// @beta
+export interface BrowserPermissionDeniedIOSStrings extends BrowserPermissionDeniedStrings {
+    imageAltText: string;
+    primaryText: string;
+    secondaryText: string;
+    step1DigitText: string;
+    step1Text: string;
+    step2DigitText: string;
+    step2Text: string;
+    step3DigitText: string;
+    step3Text: string;
+    step4DigitText: string;
+    step4Text: string;
+}
+
+// @beta
+export interface BrowserPermissionDeniedProps {
+    onTroubleshootingClick?: () => void;
+    onTryAgainClick?: () => void;
+    strings?: BrowserPermissionDeniedStrings;
+    styles?: BrowserPermissionDeniedStyles;
+}
+
+// @beta
+export interface BrowserPermissionDeniedStrings {
+    linkText: string;
+    primaryButtonText: string;
+    primaryText: string;
+    secondaryText: string;
+}
+
+// @beta
+export interface BrowserPermissionDeniedStyles extends BaseCustomStyles {
+    primaryButton?: IButtonStyles;
+    troubleshootingLink?: ILinkStyles;
 }
 
 // @public
@@ -518,6 +562,12 @@ export type CallCompositeIcons = {
 export type CallCompositeOptions = {
     errorBar?: boolean;
     callControls?: boolean | CallControlOptions;
+    deviceChecks?: DeviceCheckOptions;
+    onPermissionsTroubleshootingClick?: (permissionsState: {
+        camera: PermissionState;
+        microphone: PermissionState;
+    }) => void;
+    onNetworkingTroubleShootingClick?: () => void;
     remoteVideoTileMenuOptions?: RemoteVideoTileMenuOptions;
     localVideoTile?: boolean | LocalVideoTileOptions;
     videoTilesOptions?: VideoTilesOptions;
@@ -865,6 +915,7 @@ export interface CallState {
     pptLive: PPTLiveCallFeatureState;
     raiseHand: RaiseHandCallFeature;
     recording: RecordingCallFeature;
+    remoteAudioStream: RemoteAudioStreamState;
     remoteParticipants: {
         [keys: string]: RemoteParticipantState;
     };
@@ -1164,6 +1215,12 @@ export type CallWithChatCompositeIcons = {
 // @public
 export type CallWithChatCompositeOptions = {
     callControls?: boolean | CallWithChatControlOptions;
+    deviceChecks?: DeviceCheckOptions;
+    onPermissionsTroubleshootingClick?: (permissionsState: {
+        camera: PermissionState;
+        microphone: PermissionState;
+    }) => void;
+    onNetworkingTroubleShootingClick?: () => void;
     remoteVideoTileMenuOptions?: RemoteVideoTileMenuOptions;
     localVideoTile?: boolean | LocalVideoTileOptions;
     galleryOptions?: {
@@ -1244,6 +1301,20 @@ export interface CallWithChatControlOptions extends CommonCallControlOptions {
 // @public
 export type CallWithChatEvent = 'callError' | 'chatError' | 'callEnded' | 'isMutedChanged' | 'callIdChanged' | 'isLocalScreenSharingActiveChanged' | 'displayNameChanged' | 'isSpeakingChanged' | 'callParticipantsJoined' | 'callParticipantsLeft' | 'selectedMicrophoneChanged' | 'selectedSpeakerChanged' | 'isCaptionsActiveChanged' | 'captionsReceived' | 'isCaptionLanguageChanged' | 'isSpokenLanguageChanged' | 'capabilitiesChanged' | 'spotlightChanged' | 'messageReceived' | 'messageEdited' | 'messageDeleted' | 'messageSent' | 'messageRead' | 'chatParticipantsAdded' | 'chatParticipantsRemoved' | 'chatInitialized';
 
+// @beta
+export const CameraAndMicrophoneSitePermissions: (props: CameraAndMicrophoneSitePermissionsProps) => JSX.Element;
+
+// @beta
+export interface CameraAndMicrophoneSitePermissionsProps extends CommonSitePermissionsProps {
+    cameraIconName?: string;
+    connectorIconName?: string;
+    microphoneIconName?: string;
+    strings?: CameraAndMicrophoneSitePermissionsStrings;
+}
+
+// @beta
+export type CameraAndMicrophoneSitePermissionsStrings = SitePermissionsStrings;
+
 // @public
 export const CameraButton: (props: CameraButtonProps) => JSX.Element;
 
@@ -1298,6 +1369,18 @@ export interface CameraButtonStrings {
 export interface CameraButtonStyles extends ControlBarButtonStyles {
     menuStyles?: Partial<CameraButtonContextualMenuStyles>;
 }
+
+// @beta
+export const CameraSitePermissions: (props: CameraSitePermissionsProps) => JSX.Element;
+
+// @beta
+export interface CameraSitePermissionsProps extends CommonSitePermissionsProps {
+    cameraIconName?: string;
+    strings?: CameraSitePermissionsStrings;
+}
+
+// @beta
+export type CameraSitePermissionsStrings = SitePermissionsStrings;
 
 // @public
 export type CancelEditCallback = (messageId: string) => void;
@@ -1727,6 +1810,8 @@ export type CommonCallControlOptions = {
 // @public
 export interface CommonCallingHandlers {
     // (undocumented)
+    askDevicePermission: (constrain: PermissionConstraints) => Promise<void>;
+    // (undocumented)
     onBlurVideoBackground: (backgroundBlurConfig?: BackgroundBlurConfig) => Promise<void>;
     // (undocumented)
     onCreateLocalStreamView: (options?: VideoStreamOptions) => Promise<void | CreateVideoStreamViewResult>;
@@ -1802,6 +1887,16 @@ export interface CommonCallingHandlers {
 export type CommonProperties<A, B> = {
     [P in keyof A & keyof B]: A[P] extends B[P] ? P : never;
 }[keyof A & keyof B];
+
+// @beta
+export interface CommonSitePermissionsProps {
+    appName: string;
+    browserHint?: 'safari' | 'unset';
+    kind: 'request' | 'denied' | 'check';
+    onContinueAnywayClick?: () => void;
+    onTroubleshootingClick?: () => void;
+    styles?: SitePermissionsStyles;
+}
 
 // @public
 export type CommunicationParticipant = {
@@ -1888,7 +1983,17 @@ export type ComponentSlotStyle = Omit<IRawStyle, 'animation'>;
 
 // @public
 export interface ComponentStrings {
+    BrowserPermissionDenied: BrowserPermissionDeniedStrings;
+    BrowserPermissionDeniedIOS: BrowserPermissionDeniedIOSStrings;
+    CameraAndMicrophoneSitePermissionsCheck: SitePermissionsStrings;
+    CameraAndMicrophoneSitePermissionsDenied: SitePermissionsStrings;
+    CameraAndMicrophoneSitePermissionsDeniedSafari: SitePermissionsStrings;
+    CameraAndMicrophoneSitePermissionsRequest: SitePermissionsStrings;
     cameraButton: CameraButtonStrings;
+    CameraSitePermissionsCheck: SitePermissionsStrings;
+    CameraSitePermissionsDenied: SitePermissionsStrings;
+    CameraSitePermissionsDeniedSafari: SitePermissionsStrings;
+    CameraSitePermissionsRequest: SitePermissionsStrings;
     devicesButton: DevicesButtonStrings;
     dialpad: DialpadStrings;
     endCallButton: EndCallButtonStrings;
@@ -1898,6 +2003,10 @@ export interface ComponentStrings {
     messageStatusIndicator: MessageStatusIndicatorStrings;
     messageThread: MessageThreadStrings;
     microphoneButton: MicrophoneButtonStrings;
+    MicrophoneSitePermissionsCheck: SitePermissionsStrings;
+    MicrophoneSitePermissionsDenied: SitePermissionsStrings;
+    MicrophoneSitePermissionsDeniedSafari: SitePermissionsStrings;
+    MicrophoneSitePermissionsRequest: SitePermissionsStrings;
     notificationStack: NotificationStackStrings;
     participantItem: ParticipantItemStrings;
     participantsButton: ParticipantsButtonStrings;
@@ -2228,6 +2337,12 @@ export const DEFAULT_COMPONENT_ICONS: {
     SendBoxSendHovered: React_2.JSX.Element;
     VideoTileMicOff: React_2.JSX.Element;
     DialpadBackspace: React_2.JSX.Element;
+    SitePermissionsSparkle: React_2.JSX.Element;
+    SitePermissionCamera: React_2.JSX.Element;
+    SitePermissionMic: React_2.JSX.Element;
+    SitePermissionCameraDenied: React_2.JSX.Element;
+    SitePermissionMicDenied: React_2.JSX.Element;
+    BrowserPermissionDeniedError: React_2.JSX.Element;
     VideoTilePinned: React_2.JSX.Element;
     ParticipantItemPinned: React_2.JSX.Element;
     VideoTileMoreOptions: React_2.JSX.Element;
@@ -2367,6 +2482,12 @@ export const DEFAULT_COMPOSITE_ICONS: {
     MessageResend: React_2.JSX.Element;
     ParticipantItemSpotlighted: React_2.JSX.Element;
     DialpadBackspace: React_2.JSX.Element;
+    SitePermissionsSparkle: React_2.JSX.Element;
+    SitePermissionCamera: React_2.JSX.Element;
+    SitePermissionMic: React_2.JSX.Element;
+    SitePermissionCameraDenied: React_2.JSX.Element;
+    SitePermissionMicDenied: React_2.JSX.Element;
+    BrowserPermissionDeniedError: React_2.JSX.Element;
     VideoTilePinned: React_2.JSX.Element;
     ParticipantItemPinned: React_2.JSX.Element;
     VideoTileMoreOptions: React_2.JSX.Element;
@@ -2397,6 +2518,12 @@ export const DEFAULT_COMPOSITE_ICONS: {
     StopSpotlightContextualMenuItem: React_2.JSX.Element;
     VideoTileSpotlighted: React_2.JSX.Element;
 };
+
+// @beta
+export interface DeviceCheckOptions {
+    camera: 'required' | 'optional' | 'doNotPrompt';
+    microphone: 'required' | 'optional' | 'doNotPrompt';
+}
 
 // @public
 export type DeviceManagerState = {
@@ -3065,6 +3192,18 @@ export interface MicrophoneButtonStyles extends ControlBarButtonStyles {
     menuStyles?: Partial<MicrophoneButtonContextualMenuStyles>;
 }
 
+// @beta
+export const MicrophoneSitePermissions: (props: MicrophoneSitePermissionsProps) => JSX.Element;
+
+// @beta
+export interface MicrophoneSitePermissionsProps extends CommonSitePermissionsProps {
+    microphoneIconName?: string;
+    strings?: MicrophoneSitePermissionsStrings;
+}
+
+// @beta
+export type MicrophoneSitePermissionsStrings = SitePermissionsStrings;
+
 // @public
 export type NetworkDiagnosticChangedEvent = NetworkDiagnosticChangedEventArgs & {
     type: 'network';
@@ -3584,6 +3723,21 @@ export interface SendBoxStylesProps extends BaseCustomStyles {
     systemMessage?: IStyle;
     textField?: IStyle;
     textFieldContainer?: IStyle;
+}
+
+// @beta
+export type SitePermissionsStrings = {
+    primaryText?: string;
+    secondaryText?: string;
+    linkText?: string;
+    primaryButtonText?: string;
+    ariaLabel?: string;
+};
+
+// @beta
+export interface SitePermissionsStyles extends BaseCustomStyles {
+    primaryButton?: IButtonStyles;
+    troubleshootingLink?: ILinkStyles;
 }
 
 // @public
