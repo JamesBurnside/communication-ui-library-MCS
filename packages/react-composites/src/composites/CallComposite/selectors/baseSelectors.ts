@@ -20,7 +20,6 @@ import {
   RemoteParticipantState
 } from '@internal/calling-stateful-client';
 import { CaptionsInfo } from '@internal/calling-stateful-client';
-/* @conditional-compile-remove(teams-meeting-conference) */
 import { ConferencePhoneInfo } from '@internal/calling-stateful-client';
 import { SpotlightedParticipant } from '@azure/communication-calling';
 import { CallAdapterState, CallCompositePage } from '../adapter/CallAdapter';
@@ -28,6 +27,8 @@ import { CallAdapterState, CallCompositePage } from '../adapter/CallAdapter';
 import { VideoBackgroundEffect } from '../adapter/CallAdapter';
 import { _isInCall, _isPreviewOn, _dominantSpeakersWithFlatId } from '@internal/calling-component-bindings';
 import { AdapterErrors } from '../../common/adapters';
+/* @conditional-compile-remove(breakout-rooms) */
+import { AdapterNotifications } from '../../common/adapters';
 import { RaisedHandState } from '@internal/calling-stateful-client';
 import { CommunicationIdentifier } from '@azure/communication-common';
 /* @conditional-compile-remove(acs-close-captions) */
@@ -217,7 +218,6 @@ export const getIsTeamsCall = (state: CallAdapterState): boolean => state.isTeam
  */
 export const getIsTeamsMeeting = (state: CallAdapterState): boolean => state.isTeamsMeeting;
 
-/* @conditional-compile-remove(teams-meeting-conference) */
 /**
  * @private
  */
@@ -265,3 +265,16 @@ export const getAssignedBreakoutRoom = (state: CallAdapterState): BreakoutRoom |
  */
 export const getBreakoutRoomSettings = (state: CallAdapterState): BreakoutRoomsSettings | undefined =>
   state.call?.breakoutRooms?.breakoutRoomSettings;
+
+/* @conditional-compile-remove(breakout-rooms) */
+/**
+ * @private
+ */
+export const getBreakoutRoomDisplayName = (state: CallAdapterState): string | undefined =>
+  state.call?.breakoutRooms?.breakoutRoomDisplayName;
+
+/* @conditional-compile-remove(breakout-rooms) */
+/**
+ * @private
+ */
+export const getLatestNotifications = (state: CallAdapterState): AdapterNotifications => state.latestNotifications;

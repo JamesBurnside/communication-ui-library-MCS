@@ -11,11 +11,9 @@ import {
   _useContainerHeight,
   _useContainerWidth,
   ActiveErrorMessage,
-  ErrorBar,
   ErrorBarProps,
   useTheme
 } from '@internal/react-components';
-/* @conditional-compile-remove(notifications) */
 import { ActiveNotification, NotificationStack } from '@internal/react-components';
 import { VideoGalleryLayout } from '@internal/react-components';
 import { VideoGallery } from '@internal/react-components';
@@ -40,9 +38,9 @@ import {
   CONTROL_BAR_Z_INDEX,
   DRAWER_Z_INDEX
 } from '../styles/CallPage.styles';
-/* @conditional-compile-remove(notifications) */
+
 import { notificationStackStyles } from '../styles/CallPage.styles';
-import { MutedNotification, MutedNotificationProps } from './MutedNotification';
+import { MutedNotificationProps } from './MutedNotification';
 import { CallAdapter } from '../adapter';
 import { useSelector } from '../hooks/useSelector';
 import { callStatusSelector } from '../selectors/callStatusSelector';
@@ -55,9 +53,7 @@ import { getCallStatus, getCaptionsStatus } from '../selectors/baseSelectors';
 import { drawerContainerStyles } from '../styles/CallComposite.styles';
 import { SidePane } from './SidePane/SidePane';
 import { usePeoplePane } from './SidePane/usePeoplePane';
-/* @conditional-compile-remove(teams-meeting-conference) */
 import { useMeetingPhoneInfoPane } from './SidePane/useMeetingPhoneInfo';
-/* @conditional-compile-remove(teams-meeting-conference) */
 import { getTeamsMeetingCoordinates } from '../selectors/baseSelectors';
 
 import {
@@ -95,6 +91,10 @@ import { getCaptionsKind, getIsTeamsCall } from '../selectors/baseSelectors';
 import { useHandlers } from '../hooks/useHandlers';
 /* @conditional-compile-remove(soft-mute) */
 import { MoreDrawer } from '../../common/Drawer/MoreDrawer';
+/* @conditional-compile-remove(breakout-rooms) */
+import { useCompositeStringsForNotificationStackStrings } from '../hooks/useCompositeStringsForNotificationStack';
+/* @conditional-compile-remove(breakout-rooms) */
+import { BreakoutRoomsBanner } from './BreakoutRoomsBanner';
 
 /**
  * @private
@@ -103,7 +103,6 @@ export interface CallArrangementProps {
   id?: string;
   complianceBannerProps: _ComplianceBannerProps;
   errorBarProps: ErrorBarProps | false;
-  /* @conditional-compile-remove(notifications) */
   showErrorNotifications: boolean;
   mutedNotificationProps?: MutedNotificationProps;
   callControlProps: CallControlsProps;
@@ -114,13 +113,10 @@ export interface CallArrangementProps {
   onFetchAvatarPersonaData?: AvatarPersonaDataCallback;
   updateSidePaneRenderer: (renderer: SidePaneRenderer | undefined) => void;
   mobileChatTabHeader?: MobileChatSidePaneTabHeaderProps;
-  latestErrors: ActiveErrorMessage[] | /* @conditional-compile-remove(notifications) */ ActiveNotification[];
-  /* @conditional-compile-remove(notifications) */
+  latestErrors: ActiveErrorMessage[] | ActiveNotification[];
   latestNotifications?: ActiveNotification[];
-  onDismissError: (
-    error: ActiveErrorMessage | /* @conditional-compile-remove(notifications) */ ActiveNotification
-  ) => void;
-  /* @conditional-compile-remove(notifications) */
+  onDismissError: (error: ActiveErrorMessage | ActiveNotification) => void;
+
   onDismissNotification?: (notification: ActiveNotification) => void;
   onUserSetOverflowGalleryPositionChange?: (position: 'Responsive' | 'horizontalTop') => void;
   onUserSetGalleryLayoutChange?: (layout: VideoGalleryLayout) => void;
@@ -139,6 +135,9 @@ export interface CallArrangementProps {
   pinnedParticipants?: string[];
   setPinnedParticipants?: (pinnedParticipants: string[]) => void;
   doNotShowCameraAccessNotifications?: boolean;
+  captionsOptions?: {
+    height: 'full' | 'default';
+  };
 }
 
 /**
@@ -187,10 +186,8 @@ export const CallArrangement = (props: CallArrangementProps): JSX.Element => {
     }
   }, [participantActioned, remoteParticipants]);
 
-  /* @conditional-compile-remove(teams-meeting-conference) */
   const conferencePhoneInfo = useSelector(getTeamsMeetingCoordinates);
 
-  /* @conditional-compile-remove(teams-meeting-conference) */
   const meetingPhoneInfoPaneProps = {
     updateSidePaneRenderer,
     mobileView: props.mobileView,
@@ -237,19 +234,15 @@ export const CallArrangement = (props: CallArrangementProps): JSX.Element => {
     localParticipant
   } = videoGalleryProps;
 
-  /* @conditional-compile-remove(teams-meeting-conference) */
   const [showTeamsMeetingConferenceModal, setShowTeamsMeetingConferenceModal] = useState(false);
-  /* @conditional-compile-remove(teams-meeting-conference) */
   const toggleTeamsMeetingConferenceModal = useCallback((): void => {
     setShowTeamsMeetingConferenceModal(!showTeamsMeetingConferenceModal);
   }, [showTeamsMeetingConferenceModal]);
 
-  /* @conditional-compile-remove(teams-meeting-conference) */
   const { isMeetingPhoneInfoPaneOpen, openMeetingPhoneInfoPane, closeMeetingPhoneInfoPane } = useMeetingPhoneInfoPane({
     ...meetingPhoneInfoPaneProps
   });
 
-  /* @conditional-compile-remove(teams-meeting-conference) */
   const toggleMeetingPhoneInfoPane = useCallback(() => {
     if (isMeetingPhoneInfoPaneOpen) {
       closeMeetingPhoneInfoPane();
@@ -258,7 +251,6 @@ export const CallArrangement = (props: CallArrangementProps): JSX.Element => {
     }
   }, [closeMeetingPhoneInfoPane, isMeetingPhoneInfoPaneOpen, openMeetingPhoneInfoPane]);
 
-  /* @conditional-compile-remove(teams-meeting-conference) */
   const onMeetingPhoneInfoClicked = useCallback(() => {
     setShowDrawer(false);
     toggleMeetingPhoneInfoPane();
@@ -432,12 +424,6 @@ export const CallArrangement = (props: CallArrangementProps): JSX.Element => {
 
   const drawerContainerStylesValue = useMemo(() => drawerContainerStyles(DRAWER_Z_INDEX), []);
 
-  const canUnmute = role !== 'Consumer' ? true : false;
-
-  let filteredLatestErrors: ActiveErrorMessage[] =
-    props.errorBarProps !== false ? (props.latestErrors as ActiveErrorMessage[]) : [];
-
-  /* @conditional-compile-remove(notifications) */
   let filteredLatestErrorNotifications: ActiveNotification[] = props.showErrorNotifications
     ? (props.latestErrors as ActiveNotification[])
     : [];
@@ -445,24 +431,13 @@ export const CallArrangement = (props: CallArrangementProps): JSX.Element => {
   const isCameraOn = useSelector(localVideoSelector).isAvailable;
 
   // TODO: move this logic to the error bar selector once role is plumbed from the headless SDK
-  if (
-    role === 'Consumer' &&
-    (props.errorBarProps || /* @conditional-compile-remove(notifications) */ props.showErrorNotifications)
-  ) {
-    filteredLatestErrors = filteredLatestErrors.filter(
-      (e) => e.type !== 'callCameraAccessDenied' && e.type !== 'callCameraAccessDeniedSafari'
-    );
-    /* @conditional-compile-remove(notifications) */
+  if (role === 'Consumer' && (props.errorBarProps || props.showErrorNotifications)) {
     filteredLatestErrorNotifications = filteredLatestErrorNotifications.filter(
       (e) => e.type !== 'callCameraAccessDenied' && e.type !== 'callCameraAccessDeniedSafari'
     );
   }
 
   if (props.doNotShowCameraAccessNotifications) {
-    filteredLatestErrors = filteredLatestErrors.filter(
-      (e) => e.type !== 'callCameraAccessDenied' && e.type !== 'callCameraAccessDeniedSafari'
-    );
-    /* @conditional-compile-remove(notifications) */
     filteredLatestErrorNotifications = filteredLatestErrorNotifications.filter(
       (e) => e.type !== 'callCameraAccessDenied' && e.type !== 'callCameraAccessDeniedSafari'
     );
@@ -470,12 +445,7 @@ export const CallArrangement = (props: CallArrangementProps): JSX.Element => {
 
   const isVideoPaneOpen = useIsParticularSidePaneOpen(VIDEO_EFFECTS_SIDE_PANE_ID);
 
-  if (
-    (isVideoPaneOpen || !isCameraOn) &&
-    (props.errorBarProps || /* @conditional-compile-remove(notifications) */ props.showErrorNotifications)
-  ) {
-    filteredLatestErrors = filteredLatestErrors.filter((e) => e.type !== 'unableToStartVideoEffect');
-    /* @conditional-compile-remove(notifications) */
+  if ((isVideoPaneOpen || !isCameraOn) && (props.errorBarProps || props.showErrorNotifications)) {
     filteredLatestErrorNotifications = filteredLatestErrorNotifications.filter(
       (e) => e.type !== 'unableToStartVideoEffect'
     );
@@ -495,7 +465,13 @@ export const CallArrangement = (props: CallArrangementProps): JSX.Element => {
   const minMaxDragPosition = useMinMaxDragPosition(props.modalLayerHostId);
   const pipStyles = useMemo(() => getPipStyles(theme), [theme]);
 
-  /* @conditional-compile-remove(notifications) */
+  const galleryContainerStyles = useMemo(() => {
+    return {
+      ...mediaGalleryContainerStyles,
+      ...(props?.captionsOptions?.height === 'full' ? { root: { postion: 'absolute' } } : {})
+    };
+  }, [props?.captionsOptions?.height]);
+
   if (isTeamsMeeting) {
     filteredLatestErrorNotifications
       .filter((notification) => notification.type === 'teamsMeetingCallNetworkQualityLow')
@@ -516,60 +492,16 @@ export const CallArrangement = (props: CallArrangementProps): JSX.Element => {
       )
     : props.capabilitiesChangedNotificationBarProps?.capabilitiesChangedNotifications;
 
-  const errorNotificationTrampoline = (): JSX.Element => {
-    /* @conditional-compile-remove(notifications) */
-    return (
-      <>
-        {props.showErrorNotifications && (
-          <Stack styles={notificationStackStyles} horizontalAlign="center" verticalAlign="center">
-            <NotificationStack
-              onDismissNotification={props.onDismissError}
-              activeNotifications={filteredLatestErrorNotifications}
-            />
-          </Stack>
-        )}
-      </>
-    );
+  /* @conditional-compile-remove(breakout-rooms) */
+  const notificationStackStrings = useCompositeStringsForNotificationStackStrings(locale);
 
-    return (
-      <>
-        {props.errorBarProps !== false && (
-          <Stack styles={bannerNotificationStyles}>
-            <ErrorBar
-              {...props.errorBarProps}
-              onDismissError={props.onDismissError}
-              activeErrorMessages={filteredLatestErrors}
-            />
-          </Stack>
-        )}
-      </>
-    );
-  };
-
-  const mutedNotificationTrampoline = (): JSX.Element => {
-    /* @conditional-compile-remove(notifications) */
-    return <></>;
-    return (
-      <>
-        {canUnmute && !!props.mutedNotificationProps && (
-          <MutedNotification
-            {...props.mutedNotificationProps}
-            speakingWhileMuted={props.mutedNotificationProps?.speakingWhileMuted ?? false}
-          />
-        )}
-      </>
-    );
-  };
-
-  const complianceBannerTrampoline = (): JSX.Element => {
-    /* @conditional-compile-remove(notifications) */
-    return <></>;
-    return (
-      <Stack styles={bannerNotificationStyles}>
-        <_ComplianceBanner {...props.complianceBannerProps} />
-      </Stack>
-    );
-  };
+  let latestNotifications = props.latestNotifications;
+  /* @conditional-compile-remove(breakout-rooms) */
+  // Filter out breakout room notification that prompts user to join breakout room when in mobile view. We will
+  // replace it with a non-dismissible banner
+  latestNotifications = props.mobileView
+    ? (latestNotifications ?? []).filter((notification) => notification.type !== 'assignedBreakoutRoomOpenedPromptJoin')
+    : latestNotifications;
 
   return (
     <div ref={containerRef} className={mergeStyles(containerDivStyles)} id={props.id}>
@@ -630,9 +562,7 @@ export const CallArrangement = (props: CallArrangementProps): JSX.Element => {
                   onStopLocalSpotlight={
                     !hideSpotlightButtons && localParticipant.spotlight ? onStopLocalSpotlightWithPrompt : undefined
                   }
-                  /* @conditional-compile-remove(teams-meeting-conference) */
                   onToggleTeamsMeetingConferenceModal={toggleTeamsMeetingConferenceModal}
-                  /* @conditional-compile-remove(teams-meeting-conference) */
                   teamsMeetingConferenceModalPresent={showTeamsMeetingConferenceModal}
                 />
               )}
@@ -656,7 +586,6 @@ export const CallArrangement = (props: CallArrangementProps): JSX.Element => {
                 onSetDialpadPage={props.onSetDialpadPage}
                 dtmfDialerPresent={props.dtmfDialerPresent}
                 reactionResources={adapter.getState().reactions}
-                /* @conditional-compile-remove(teams-meeting-conference) */
                 onClickMeetingPhoneInfo={onMeetingPhoneInfoClicked}
               />
             </Stack>
@@ -664,21 +593,30 @@ export const CallArrangement = (props: CallArrangementProps): JSX.Element => {
           <Stack horizontal grow>
             <Stack.Item style={callCompositeContainerCSS}>
               <Stack.Item styles={callGalleryStyles} grow>
-                <Stack verticalFill styles={mediaGalleryContainerStyles}>
+                <Stack verticalFill styles={galleryContainerStyles}>
                   <Stack.Item styles={notificationsContainerStyles}>
-                    {complianceBannerTrampoline()}
-
-                    {errorNotificationTrampoline()}
                     {
-                      /* @conditional-compile-remove(notifications) */ props.latestNotifications && (
-                        <Stack styles={notificationStackStyles} horizontalAlign="center" verticalAlign="center">
-                          <NotificationStack
-                            activeNotifications={props.latestNotifications}
-                            onDismissNotification={props.onDismissNotification}
-                          />
-                        </Stack>
-                      )
+                      /* @conditional-compile-remove(breakout-rooms) */
+                      props.mobileView && <BreakoutRoomsBanner locale={locale} adapter={adapter} />
                     }
+                    {props.showErrorNotifications && (
+                      <Stack styles={notificationStackStyles} horizontalAlign="center" verticalAlign="center">
+                        <NotificationStack
+                          onDismissNotification={props.onDismissError}
+                          activeNotifications={filteredLatestErrorNotifications}
+                        />
+                      </Stack>
+                    )}
+                    {latestNotifications && (
+                      <Stack styles={notificationStackStyles} horizontalAlign="center" verticalAlign="center">
+                        <NotificationStack
+                          activeNotifications={latestNotifications}
+                          onDismissNotification={props.onDismissNotification}
+                          /* @conditional-compile-remove(breakout-rooms) */
+                          strings={notificationStackStrings}
+                        />
+                      </Stack>
+                    )}
                     {props.capabilitiesChangedNotificationBarProps &&
                       props.capabilitiesChangedNotificationBarProps.capabilitiesChangedNotifications.length > 0 && (
                         <Stack styles={bannerNotificationStyles}>
@@ -688,12 +626,12 @@ export const CallArrangement = (props: CallArrangementProps): JSX.Element => {
                           />
                         </Stack>
                       )}
-                    {mutedNotificationTrampoline()}
                   </Stack.Item>
                   {renderGallery && props.onRenderGalleryContent && props.onRenderGalleryContent()}
                   {true &&
                     /* @conditional-compile-remove(PSTN-calls) */ /* @conditional-compile-remove(one-to-n-calling) */ !isInLocalHold && (
                       <CaptionsBanner
+                        captionsOptions={props.captionsOptions}
                         isMobile={props.mobileView}
                         onFetchAvatarPersonaData={props.onFetchAvatarPersonaData}
                         useTeamsCaptions={useTeamsCaptions}
@@ -718,6 +656,7 @@ export const CallArrangement = (props: CallArrangementProps): JSX.Element => {
               }
               onChatButtonClicked={props.mobileChatTabHeader?.onClick}
               disableChatButton={props.mobileChatTabHeader?.disabled}
+              showAddPeopleButton={!!props.callControlProps.callInvitationURL}
             />
             {props.mobileView && (
               <ModalLocalAndRemotePIP

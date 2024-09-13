@@ -76,7 +76,6 @@ export function convertSdkRemoteStreamToDeclarativeRemoteStream(
     id: stream.id,
     mediaStreamType: stream.mediaStreamType,
     isAvailable: stream.isAvailable,
-    /* @conditional-compile-remove(video-stream-is-receiving-flag) */
     isReceiving: stream.isReceiving,
     view: undefined,
     streamSize: stream.size
@@ -189,7 +188,6 @@ export function convertSdkCallToDeclarativeCall(call: CallCommon): CallState {
     /* @conditional-compile-remove(hide-attendee-name) */
     hideAttendeeNames,
     info: callInfo,
-    /* @conditional-compile-remove(teams-meeting-conference) */
     meetingConference: { conferencePhones: [] },
     remoteAudioStream: {}
   };

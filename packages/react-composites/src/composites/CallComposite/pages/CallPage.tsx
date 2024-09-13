@@ -5,7 +5,7 @@ import { DiagnosticQuality } from '@azure/communication-calling';
 import { useId } from '@fluentui/react-hooks';
 import { _isInCall } from '@internal/calling-component-bindings';
 import { ActiveErrorMessage, ErrorBar, ParticipantMenuItemsCallback } from '@internal/react-components';
-/* @conditional-compile-remove(notifications) */
+
 import { ActiveNotification } from '@internal/react-components';
 import { VideoGalleryLayout } from '@internal/react-components';
 import React, { useMemo } from 'react';
@@ -48,13 +48,9 @@ export interface CallPageProps {
   updateSidePaneRenderer: (renderer: SidePaneRenderer | undefined) => void;
   mobileChatTabHeader?: MobileChatSidePaneTabHeaderProps;
   options?: CallCompositeOptions;
-  latestErrors: ActiveErrorMessage[] | /* @conditional-compile-remove(notifications) */ ActiveNotification[];
-  /* @conditional-compile-remove(notifications) */
+  latestErrors: ActiveErrorMessage[] | ActiveNotification[];
   latestNotifications: ActiveNotification[];
-  onDismissError: (
-    error: ActiveErrorMessage | /* @conditional-compile-remove(notifications) */ ActiveNotification
-  ) => void;
-  /* @conditional-compile-remove(notifications) */
+  onDismissError: (error: ActiveErrorMessage | ActiveNotification) => void;
   onDismissNotification: (notification: ActiveNotification) => void;
   galleryLayout: VideoGalleryLayout;
   capabilitiesChangedNotificationBarProps?: CapabilitiesChangeNotificationBarProps;
@@ -87,9 +83,7 @@ export const CallPage = (props: CallPageProps): JSX.Element => {
     setPinnedParticipants,
     compositeAudioContext,
     disableAutoShowDtmfDialer = false,
-    /* @conditional-compile-remove(notifications) */
     latestNotifications,
-    /* @conditional-compile-remove(notifications) */
     onDismissNotification
   } = props;
 
@@ -163,6 +157,7 @@ export const CallPage = (props: CallPageProps): JSX.Element => {
           setPromptProps={setPromptProps}
           hideSpotlightButtons={options?.spotlight?.hideSpotlightButtons}
           videoTilesOptions={options?.videoTilesOptions}
+          captionsOptions={options?.captionsBanner}
         />
       );
     }
@@ -174,7 +169,6 @@ export const CallPage = (props: CallPageProps): JSX.Element => {
         id={drawerMenuHostId}
         complianceBannerProps={{ ...complianceBannerProps, strings }}
         errorBarProps={options?.errorBar !== false && errorBarProps}
-        /* @conditional-compile-remove(notifications) */
         showErrorNotifications={options?.errorBar ?? true}
         mutedNotificationProps={mutedNotificationProps}
         callControlProps={{
@@ -191,10 +185,7 @@ export const CallPage = (props: CallPageProps): JSX.Element => {
             isNetworkHealthy(networkReconnectTileProps.networkReconnectValue) ? (
               onRenderGalleryContentTrampoline()
             ) : (
-              <NetworkReconnectTile
-                {...networkReconnectTileProps}
-                /* /* @conditional-compile-remove(teams-meeting-conference) */ isMobile={mobileView}
-              />
+              <NetworkReconnectTile {...networkReconnectTileProps} isMobile={mobileView} />
             )
           ) : (
             <></>
@@ -205,10 +196,8 @@ export const CallPage = (props: CallPageProps): JSX.Element => {
         onCloseChatPane={onCloseChatPane}
         dataUiId={'call-page'}
         latestErrors={props.latestErrors}
-        /* @conditional-compile-remove(notifications) */
         latestNotifications={latestNotifications}
         onDismissError={props.onDismissError}
-        /* @conditional-compile-remove(notifications) */
         onDismissNotification={onDismissNotification}
         onUserSetOverflowGalleryPositionChange={onSetUserSetOverflowGalleryPosition}
         onUserSetGalleryLayoutChange={onUserSetGalleryLayoutChange}
@@ -223,6 +212,7 @@ export const CallPage = (props: CallPageProps): JSX.Element => {
         setPinnedParticipants={setPinnedParticipants}
         /* @conditional-compile-remove(call-readiness) */
         doNotShowCameraAccessNotifications={props.options?.deviceChecks?.camera === 'doNotPrompt'}
+        captionsOptions={options?.captionsBanner}
       />
       {<Prompt isOpen={isPromptOpen} onDismiss={() => setIsPromptOpen(false)} {...promptProps} />}
     </>

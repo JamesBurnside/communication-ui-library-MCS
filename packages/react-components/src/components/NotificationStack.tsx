@@ -3,7 +3,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Stack } from '@fluentui/react';
-/* @conditional-compile-remove(notifications) */
+
 import { useLocale } from '../localization';
 import {
   DismissedNotification,
@@ -94,7 +94,6 @@ export interface NotificationStackStrings {
    * Message shown when poor network quality is detected during a call.
    */
   callNetworkQualityLow?: NotificationStrings;
-  /* @conditional-compile-remove(teams-meeting-conference) */
   /**
    * Message shown when poor network quality is detected during a teams meetings.
    * Contains actions to open phone info modal.
@@ -263,14 +262,14 @@ export interface NotificationStackStrings {
   assignedBreakoutRoomChanged?: NotificationStrings;
   /* @conditional-compile-remove(breakout-rooms) */
   /**
-   * Message shown in notification when the user's assigned breakout room is closing soon
+   * Message shown in notification when breakout room is joined
    */
-  assignedBreakoutRoomClosingSoon?: NotificationStrings;
+  breakoutRoomJoined?: NotificationStrings;
   /* @conditional-compile-remove(breakout-rooms) */
   /**
-   * Message shown in notification when the user's assigned breakout room is closed
+   * Message shown in notification when breakout room is closing soon
    */
-  assignedBreakoutRoomClosed?: NotificationStrings;
+  breakoutRoomClosingSoon?: NotificationStrings;
 }
 
 /**
@@ -333,9 +332,8 @@ export interface ActiveNotification {
  * @public
  */
 export const NotificationStack = (props: NotificationStackProps): JSX.Element => {
-  /* @conditional-compile-remove(notifications) */
   const localeStrings = useLocale().strings.notificationStack;
-  const strings = props.strings ?? /* @conditional-compile-remove(notifications) */ localeStrings;
+  const strings = props.strings ?? localeStrings;
   const maxNotificationsToShow = props.maxNotificationsToShow ?? 2;
 
   const trackDismissedNotificationsInternally = !props.onDismissNotification;

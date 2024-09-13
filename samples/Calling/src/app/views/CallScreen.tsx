@@ -18,6 +18,8 @@ import {
 import { useTeamsCallAdapter, TeamsCallAdapter } from '@azure/communication-react';
 
 import { onResolveVideoEffectDependencyLazy } from '@azure/communication-react';
+/* @conditional-compile-remove(DNS) */
+import { onResolveDeepNoiseSuppressionDependencyLazy } from '@azure/communication-react';
 /* @conditional-compile-remove(teams-identity-support) */
 import type { Profile, TeamsAdapterOptions } from '@azure/communication-react';
 import type { StartCallIdentifier } from '@azure/communication-react';
@@ -161,6 +163,11 @@ const AzureCommunicationCallScreen = (props: AzureCommunicationCallScreenProps):
         videoBackgroundImages,
         onResolveDependency: onResolveVideoEffectDependencyLazy
       },
+      // /* @conditional-compile-remove(DNS) */
+      deepNoiseSuppressionOptions: {
+        onResolveDependency: onResolveDeepNoiseSuppressionDependencyLazy,
+        deepNoiseSuppressionOnByDefault: true
+      },
       callingSounds: {
         callEnded: { url: '/assets/sounds/callEnded.mp3' },
         callRinging: { url: '/assets/sounds/callRinging.mp3' },
@@ -172,9 +179,11 @@ const AzureCommunicationCallScreen = (props: AzureCommunicationCallScreenProps):
         laughReaction: { url: '/assets/reactions/laughEmoji.png', frameCount: 102 },
         applauseReaction: { url: '/assets/reactions/clapEmoji.png', frameCount: 102 },
         surprisedReaction: { url: '/assets/reactions/surprisedEmoji.png', frameCount: 102 }
-      }
+      },
+      /* @conditional-compile-remove(PSTN-calls) */
+      alternateCallerId: adapterArgs.alternateCallerId
     };
-  }, []);
+  }, [/* @conditional-compile-remove(PSTN-calls) */ adapterArgs.alternateCallerId]);
 
   const adapter = useAzureCommunicationCallAdapter(
     {
@@ -220,9 +229,11 @@ const AzureCommunicationOutboundCallScreen = (props: AzureCommunicationCallScree
           return { displayName: 'Teams app display name' };
         }
         return defaultProfile;
-      }
+      },
+      /* @conditional-compile-remove(PSTN-calls) */
+      alternateCallerId: adapterArgs.alternateCallerId
     };
-  }, []);
+  }, [/* @conditional-compile-remove(PSTN-calls) */ adapterArgs.alternateCallerId]);
 
   const adapter = useAzureCommunicationCallAdapter(
     {
