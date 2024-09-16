@@ -4,7 +4,7 @@ import { DominantSpeakersInfo } from '@azure/communication-calling';
 /* @conditional-compile-remove(breakout-rooms) */
 import { BreakoutRoom } from '@azure/communication-calling';
 import { ParticipantCapabilities } from '@azure/communication-calling';
-/* @conditional-compile-remove(unsupported-browser) */
+/* @conditional-compile-remove(calling-environment-info) */
 import { EnvironmentInfo } from '@azure/communication-calling';
 import { ParticipantRole } from '@azure/communication-calling';
 import { toFlatCommunicationIdentifier } from '@internal/acs-ui-common';
@@ -209,8 +209,8 @@ export const getCallState = (state: CallClientState, props: CallingBaseSelectorP
  */
 export const getEnvironmentInfo = (
   state: CallClientState
-): undefined | /* @conditional-compile-remove(unsupported-browser) */ EnvironmentInfo => {
-  /* @conditional-compile-remove(unsupported-browser) */
+): undefined | /* @conditional-compile-remove(calling-environment-info) */ EnvironmentInfo => {
+  /* @conditional-compile-remove(calling-environment-info) */
   return state.environmentInfo;
   return undefined;
 };

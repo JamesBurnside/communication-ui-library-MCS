@@ -52,8 +52,6 @@ module.exports = {
     "unsupported-browser",
     // Feature to show the total number of participants in a call (currently in beta in calling SDK, hence this must be conditionally compiled)
     "total-participant-count",
-    // feature for tracking environment info API different than unsupported browser. stable use of environment info affects other components possibly sooner
-    "calling-environment-info",
     // conditional-compile for new signaling beta
     "signaling-beta",
     // Image overlay theme
@@ -72,12 +70,8 @@ module.exports = {
     "teams-identity-support-beta",
     // Soft Mute feature for ACS calls and Interop calls
     "soft-mute",
-    // feature for tracking the callParticipantsLocator
-    "call-participants-locator",
     // feature for breakout rooms
     "breakout-rooms",
-    // Deep Noise Suppression feature
-    "DNS"
   ],
   stable: [
     // Demo feature. Used in live-documentation of conditional compilation.
@@ -105,6 +99,12 @@ module.exports = {
     // Adhoc calls to a Teams user.
     "teams-adhoc-call",
     // Feature for tracking beta start call identifier
-    'start-call-beta'
+    'start-call-beta',
+    // Deep Noise Suppression feature
+    "DNS",
+    // feature for tracking the callParticipantsLocator
+    "call-participants-locator",
+    // feature for tracking environment info API different than unsupported browser. stable use of environment info affects other components possibly sooner
+    "calling-environment-info",
   ]
 }

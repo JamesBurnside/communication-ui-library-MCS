@@ -21,7 +21,7 @@ import { CapabilitiesChangeInfo, ParticipantCapabilities } from '@azure/communic
 import { TeamsCaptionsInfo } from '@azure/communication-calling';
 /* @conditional-compile-remove(acs-close-captions) */
 import { CaptionsKind, CaptionsInfo as AcsCaptionsInfo } from '@azure/communication-calling';
-/* @conditional-compile-remove(unsupported-browser) */
+/* @conditional-compile-remove(calling-environment-info) */
 import { EnvironmentInfo } from '@azure/communication-calling';
 import { AzureLogger, createClientLogger, getLogLevel } from '@azure/logger';
 import { EventEmitter } from 'events';
@@ -109,7 +109,7 @@ export class CallContext {
       },
       callAgent: undefined,
       userId: userId,
-      /* @conditional-compile-remove(unsupported-browser) */ environmentInfo: undefined,
+      /* @conditional-compile-remove(calling-environment-info) */ environmentInfo: undefined,
       latestErrors: {} as CallErrors,
       /* @conditional-compile-remove(breakout-rooms) */ latestNotifications: {} as CallNotifications
     };
@@ -253,7 +253,7 @@ export class CallContext {
     });
   }
 
-  /* @conditional-compile-remove(unsupported-browser) */
+  /* @conditional-compile-remove(calling-environment-info) */
   public setEnvironmentInfo(envInfo: EnvironmentInfo): void {
     this.modifyState((draft: CallClientState) => {
       draft.environmentInfo = envInfo;

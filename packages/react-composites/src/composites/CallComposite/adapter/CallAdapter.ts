@@ -11,7 +11,7 @@ import type { SpotlightedParticipant } from '@azure/communication-calling';
 import { TeamsCall } from '@azure/communication-calling';
 import { TransferEventArgs } from '@azure/communication-calling';
 import { StartCaptionsOptions } from '@azure/communication-calling';
-/* @conditional-compile-remove(unsupported-browser) */
+/* @conditional-compile-remove(calling-environment-info) */
 import { EnvironmentInfo } from '@azure/communication-calling';
 /* @conditional-compile-remove(breakout-rooms) */
 import type { BreakoutRoomsUpdatedListener } from '@azure/communication-calling';
@@ -150,7 +150,7 @@ export type CallAdapterClientState = {
    * Azure communications Phone number to make PSTN calls with.
    */
   alternateCallerId?: string;
-  /* @conditional-compile-remove(unsupported-browser) */
+  /* @conditional-compile-remove(calling-environment-info) */
   /**
    * Environment information about system the adapter is made on
    */

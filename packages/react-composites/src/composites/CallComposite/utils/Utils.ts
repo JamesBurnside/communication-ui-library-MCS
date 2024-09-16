@@ -6,7 +6,7 @@ import { _isInCall, _isPreviewOn, _isInLobbyOrConnecting } from '@internal/calli
 import { CallControlOptions } from '../types/CallControlOptions';
 import { CallState, RemoteParticipantState } from '@internal/calling-stateful-client';
 import { isPhoneNumberIdentifier } from '@azure/communication-common';
-/* @conditional-compile-remove(unsupported-browser) */
+/* @conditional-compile-remove(calling-environment-info) */
 import { EnvironmentInfo } from '@azure/communication-calling';
 import { AdapterStateModifier, CallAdapterLocator } from '../adapter/AzureCommunicationCallAdapter';
 
@@ -499,9 +499,9 @@ const isUnsupportedEnvironment = (
  * @private
  */
 export const _isSafari = (
-  environmentInfo: undefined | /* @conditional-compile-remove(unsupported-browser) */ EnvironmentInfo
+  environmentInfo: undefined | /* @conditional-compile-remove(calling-environment-info) */ EnvironmentInfo
 ): boolean => {
-  /* @conditional-compile-remove(unsupported-browser) */
+  /* @conditional-compile-remove(calling-environment-info) */
   return environmentInfo?.environment.browser.toLowerCase() === 'safari';
   return /^((?!chrome|android|crios|fxios).)*safari/i.test(navigator.userAgent);
 };

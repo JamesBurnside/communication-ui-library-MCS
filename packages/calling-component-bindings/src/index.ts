@@ -60,7 +60,7 @@ export { useSelector as useCallingSelector } from './hooks/useSelector';
 export { useHandlers as useCallingHandlers } from './hooks/useHandlers';
 
 export { _isInCall, _isPreviewOn, _isInLobbyOrConnecting, _updateUserDisplayNames } from './utils/callUtils';
-/* @conditional-compile-remove(unsupported-browser) */
+/* @conditional-compile-remove(calling-environment-info) */
 export { _getEnvironmentInfo } from './utils/callUtils';
 
 export { _videoGalleryRemoteParticipantsMemo, _dominantSpeakersWithFlatId } from './utils/videoGalleryUtils';

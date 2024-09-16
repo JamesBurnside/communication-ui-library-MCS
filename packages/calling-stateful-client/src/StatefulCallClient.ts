@@ -3,7 +3,7 @@
 
 import { deviceManagerDeclaratify } from './DeviceManagerDeclarative';
 import { CallClient, CallClientOptions, CreateViewOptions, DeviceManager } from '@azure/communication-calling';
-/* @conditional-compile-remove(unsupported-browser) */
+/* @conditional-compile-remove(calling-environment-info) */
 import { Features } from '@azure/communication-calling';
 import { CallClientState, LocalVideoStreamState, RemoteVideoStreamState } from './CallClientState';
 import { CallContext } from './CallContext';
@@ -263,7 +263,7 @@ class ProxyCallClient implements ProxyHandler<CallClient> {
         }, 'CallClient.getDeviceManager');
       }
       case 'feature': {
-        /* @conditional-compile-remove(unsupported-browser) */
+        /* @conditional-compile-remove(calling-environment-info) */
         return this._context.withErrorTeedToState((...args: Parameters<CallClient['feature']>) => {
           if (args[0] === Features.DebugInfo) {
             const feature = target.feature(Features.DebugInfo);

@@ -83,7 +83,7 @@ type CallWithChatClientStateInternal = Omit<
   | /* @conditional-compile-remove(breakout-rooms) */ 'latestNotifications'
   | 'userId'
   | /* @conditional-compile-remove(PSTN-calls) */ 'alternateCallerId'
-  | /* @conditional-compile-remove(unsupported-browser) */ 'features'
+  | /* @conditional-compile-remove(calling-environment-info) */ 'features'
   | 'videoBackgroundImages'
   | 'selectedVideoBackgroundEffect'
   | 'acceptedTransferCallState'
@@ -91,6 +91,7 @@ type CallWithChatClientStateInternal = Omit<
   | 'sounds'
   | 'isRoomsCall'
   | 'targetCallees'
+  | 'environmentInfo'
 >;
 
 const CallWithChatClientStateTypeAssertion = (value: CallWithChatClientState): CallWithChatClientStateInternal => value;
