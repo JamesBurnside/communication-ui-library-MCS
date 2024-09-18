@@ -22,7 +22,7 @@ export interface AdapterState<TState> {
  */
 export interface Disposable {
   /** Dispose of the Composite */
-  dispose(): void;
+  dispose(): Promise<void>;
 }
 
 /**

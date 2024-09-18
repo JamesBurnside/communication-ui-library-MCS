@@ -44,6 +44,8 @@ export interface DesktopMoreButtonProps extends ControlBarButtonProps {
   dtmfDialerPresent?: boolean;
   teamsMeetingPhoneCallEnable?: boolean;
   onMeetingPhoneInfoClick?: () => void;
+  hideHoldButton?: boolean;
+  hideGalleryViewButton?: boolean;
 }
 
 /**
@@ -96,18 +98,20 @@ export const DesktopMoreButton = (props: DesktopMoreButtonProps): JSX.Element =>
   };
 
   /*@conditional-compile-remove(PSTN-calls) */ /* @conditional-compile-remove(one-to-n-calling) */
-  moreButtonContextualMenuItems.push({
-    key: 'holdButtonKey',
-    text: localeStrings.component.strings.holdButton.tooltipOffContent,
-    onClick: () => {
-      holdButtonProps.onToggleHold();
-    },
-    iconProps: { iconName: 'HoldCallContextualMenuItem', styles: { root: { lineHeight: 0 } } },
-    itemProps: {
-      styles: buttonFlyoutIncreasedSizeStyles
-    },
-    disabled: props.disableButtonsForHoldScreen
-  });
+  if (!props.hideHoldButton) {
+    moreButtonContextualMenuItems.push({
+      key: 'holdButtonKey',
+      text: localeStrings.component.strings.holdButton.tooltipOffContent,
+      onClick: () => {
+        holdButtonProps.onToggleHold();
+      },
+      iconProps: { iconName: 'HoldCallContextualMenuItem', styles: { root: { lineHeight: 0 } } },
+      itemProps: {
+        styles: buttonFlyoutIncreasedSizeStyles
+      },
+      disabled: props.disableButtonsForHoldScreen
+    });
+  }
 
   // is captions feature is active
   if (props.isCaptionsSupported) {
@@ -221,7 +225,7 @@ export const DesktopMoreButton = (props: DesktopMoreButtonProps): JSX.Element =>
     moreButtonContextualMenuItems.push(joinByPhoneOption);
   }
 
-  if (props.onUserSetOverflowGalleryPositionChange) {
+  if (!props.hideGalleryViewButton && props.onUserSetOverflowGalleryPositionChange) {
     const galleryOptions = {
       key: 'overflowGalleryPositionKey',
       iconProps: {

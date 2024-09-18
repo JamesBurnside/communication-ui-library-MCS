@@ -428,14 +428,14 @@ export class AzureCommunicationCallWithChatAdapter implements CallWithChatAdapte
     return this.context.getState();
   }
   /** Dispose of the current CallWithChatAdapter. */
-  public dispose(): void {
+  public async dispose(): Promise<void> {
     this.isAdapterDisposed = true;
     if (this.chatAdapter) {
       this.chatAdapter.offStateChange(this.onChatStateChange);
-      this.chatAdapter.dispose();
+      await this.chatAdapter.dispose();
     }
     this.callAdapter.offStateChange(this.onCallStateChange);
-    this.callAdapter.dispose();
+    await this.callAdapter.dispose();
   }
   /** Remove a participant from the Call only. */
   public async removeParticipant(

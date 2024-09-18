@@ -93,6 +93,8 @@ export interface LocalDeviceSettingsType {
   onClickEnableDevicePermission?: () => void;
 
   onClickVideoEffects?: () => void;
+
+  audioOnly?: boolean;
 }
 
 /**
@@ -137,7 +139,7 @@ export const LocalDeviceSettings = (props: LocalDeviceSettingsType): JSX.Element
   const hasCameras = props.cameras.length > 0;
   const hasMicrophones = props.microphones.length > 0;
   const hasSpeakers = props.speakers.length > 0;
-  /* @conditional-compile-remove(unsupported-browser) */
+
   const isSafariWithNoSpeakers =
     adapter.getState().environmentInfo?.environment.browser.toLowerCase() === 'safari' && !hasSpeakers;
 
@@ -224,7 +226,6 @@ export const LocalDeviceSettings = (props: LocalDeviceSettingsType): JSX.Element
   );
 
   const safariBrowserSpeakerDropdownTrampoline = (): JSX.Element => {
-    /* @conditional-compile-remove(unsupported-browser) */
     if (isSafariWithNoSpeakers) {
       return <></>;
     }
@@ -233,7 +234,7 @@ export const LocalDeviceSettings = (props: LocalDeviceSettingsType): JSX.Element
 
   return (
     <Stack data-ui-id="call-composite-device-settings" tokens={mainStackTokens} styles={deviceSelectionContainerStyles}>
-      {roleCanUseCamera && (
+      {roleCanUseCamera && !props.audioOnly && (
         <Stack>
           <Stack horizontal horizontalAlign="space-between" styles={cameraAndVideoEffectsContainerStyleDesktop}>
             <Label

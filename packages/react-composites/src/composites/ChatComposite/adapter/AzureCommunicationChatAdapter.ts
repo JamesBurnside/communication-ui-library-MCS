@@ -161,7 +161,7 @@ export class AzureCommunicationChatAdapter implements ChatAdapter {
     this.removeResourceFromCache = this.removeResourceFromCache.bind(this);
   }
 
-  dispose(): void {
+  async dispose(): Promise<void> {
     this.unsubscribeAllEvents();
     this.chatClient.dispose();
   }

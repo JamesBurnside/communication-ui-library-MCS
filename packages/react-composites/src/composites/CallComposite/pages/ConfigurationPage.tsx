@@ -14,6 +14,7 @@ import { ActiveErrorMessage, DevicesButton, ErrorBar, useTheme } from '@internal
 import { getCallingSelector } from '@internal/calling-component-bindings';
 import { Image, Panel, PanelType, Stack } from '@fluentui/react';
 import {
+  audioOnlyConfigurationCenteredContent,
   callDetailsContainerStyles,
   configurationCenteredContent,
   configurationSectionStyle,
@@ -59,7 +60,6 @@ import { useIsParticularSidePaneOpen } from '../components/SidePane/SidePaneProv
 import { localVideoSelector } from '../../CallComposite/selectors/localVideoStreamSelector';
 
 import { CapabilitiesChangeNotificationBarProps } from '../components/CapabilitiesChangedNotificationBar';
-import { SvgWithWordWrapping } from '../components/SvgWithWordWrapping';
 import { EnvironmentInfo } from '@azure/communication-calling';
 
 /**
@@ -82,6 +82,8 @@ export interface ConfigurationPageProps {
   /* @conditional-compile-remove(call-readiness) */
   onNetworkingTroubleShootingClick?: () => void;
 
+  audioOnly: boolean;
+
   capabilitiesChangedNotificationBarProps?: CapabilitiesChangeNotificationBarProps;
   logo?: {
     url: string;
@@ -103,7 +105,8 @@ export const ConfigurationPage = (props: ConfigurationPageProps): JSX.Element =>
     modalLayerHostId,
     /* @conditional-compile-remove(call-readiness) */ deviceChecks,
     /* @conditional-compile-remove(call-readiness) */ onPermissionsTroubleshootingClick,
-    /* @conditional-compile-remove(call-readiness) */ onNetworkingTroubleShootingClick
+    /* @conditional-compile-remove(call-readiness) */ onNetworkingTroubleShootingClick,
+    audioOnly
   } = props;
 
   const theme = useTheme();
@@ -163,20 +166,15 @@ export const ConfigurationPage = (props: ConfigurationPageProps): JSX.Element =>
   }
 
   const locale = useLocale();
-  const title =
-    locale.strings.call.configurationPageTitle.length > 0 ? (
-      <Stack.Item className={mobileView ? titleContainerStyleMobile(theme) : titleContainerStyleDesktop(theme)}>
-        <SvgWithWordWrapping
-          width={mobileView ? 325 : 445}
-          lineHeightPx={16 * 1.5}
-          bufferHeightPx={16}
-          text={locale.strings.call.configurationPageTitle}
-          role="heading"
-        />
-      </Stack.Item>
-    ) : (
-      <></>
-    );
+  const title = (
+    <Stack.Item
+      className={mobileView ? titleContainerStyleMobile : titleContainerStyleDesktop}
+      role="heading"
+      aria-level={1}
+    >
+      {locale.strings.call.configurationPageTitle}
+    </Stack.Item>
+  );
 
   const callDescription = locale.strings.call.configurationPageCallDetails && (
     <Stack.Item className={mobileView ? callDetailsStyleMobile(theme) : callDetailsStyleDesktop(theme)}>
@@ -319,71 +317,112 @@ export const ConfigurationPage = (props: ConfigurationPageProps): JSX.Element =>
       }
 
       <Stack verticalFill grow horizontal className={fillWidth}>
-        <Stack
-          className={configurationCenteredContent(mobileWithPreview, !!props.logo)}
-          verticalAlign="center"
-          verticalFill={mobileWithPreview}
-          tokens={mobileWithPreview ? configurationStackTokensMobile : configurationStackTokensDesktop}
-        >
-          <Stack.Item styles={callDetailsContainerStyles}>
-            <Logo logo={props.logo} />
-            {title}
-            {callDescription}
-          </Stack.Item>
+        {props.audioOnly ? (
           <Stack
-            horizontal={!mobileWithPreview}
-            horizontalAlign={mobileWithPreview ? 'stretch' : 'center'}
-            verticalFill={mobileWithPreview}
-            tokens={deviceConfigurationStackTokens}
+            className={audioOnlyConfigurationCenteredContent()}
+            verticalAlign="center"
+            tokens={configurationStackTokensDesktop}
           >
-            {localPreviewTrampoline(mobileWithPreview, !!(role === 'Consumer'))}
-            <Stack styles={mobileView ? undefined : configurationSectionStyle}>
-              {!mobileWithPreview && (
-                <Stack
-                  className={
-                    mobileView
-                      ? undefined
-                      : selectionContainerStyle(
-                          theme,
-                          isSafariBrowserEnvironmentTrampoline(
-                            /* @conditional-compile-remove(unsupported-browser) */ environmentInfo
+            <Stack.Item styles={callDetailsContainerStyles}>
+              {title}
+              {callDescription}
+            </Stack.Item>
+            <Stack className={selectionContainerStyle(theme, true)} tokens={{ childrenGap: '1rem' }}>
+              <LocalDeviceSettings
+                {...options}
+                {...localDeviceSettingsHandlers}
+                cameraPermissionGranted={cameraPermissionGrantedTrampoline(
+                  cameraPermissionGranted,
+                  /* @conditional-compile-remove(call-readiness) */ videoState
+                )}
+                microphonePermissionGranted={micPermissionGrantedTrampoline(
+                  microphonePermissionGranted,
+                  /* @conditional-compile-remove(call-readiness) */ audioState
+                )}
+                /* @conditional-compile-remove(call-readiness) */
+                onClickEnableDevicePermission={() => {
+                  setIsPermissionsModalDismissed(true);
+                }}
+                onClickVideoEffects={toggleVideoEffectsPane}
+                audioOnly={audioOnly}
+              />
+            </Stack>
+            <StartCallButton
+              className={mobileWithPreview ? startCallButtonStyleMobile : startCallButtonStyleDesktop}
+              onClick={startCall}
+              disabled={disableStartCallButton}
+              hideIcon={true}
+            />
+          </Stack>
+        ) : (
+          <Stack
+            className={configurationCenteredContent(mobileWithPreview, !!props.logo)}
+            verticalAlign="center"
+            verticalFill={mobileWithPreview}
+            tokens={mobileWithPreview ? configurationStackTokensMobile : configurationStackTokensDesktop}
+          >
+            <Stack.Item styles={callDetailsContainerStyles}>
+              <Logo logo={props.logo} />
+              {title}
+              {callDescription}
+            </Stack.Item>
+            <Stack
+              horizontal={!mobileWithPreview}
+              horizontalAlign={mobileWithPreview ? 'stretch' : 'center'}
+              verticalFill={mobileWithPreview}
+              tokens={deviceConfigurationStackTokens}
+            >
+              {localPreviewTrampoline(mobileWithPreview, !!(role === 'Consumer'))}
+              <Stack styles={mobileView ? undefined : configurationSectionStyle}>
+                {!mobileWithPreview && (
+                  <Stack
+                    className={
+                      mobileView
+                        ? undefined
+                        : selectionContainerStyle(
+                            theme,
+                            isSafariBrowserEnvironmentTrampoline(
+                              /* @conditional-compile-remove(unsupported-browser) */ environmentInfo
+                            )
                           )
-                        )
+                    }
+                  >
+                    <LocalDeviceSettings
+                      {...options}
+                      {...localDeviceSettingsHandlers}
+                      cameraPermissionGranted={cameraPermissionGrantedTrampoline(
+                        cameraPermissionGranted,
+                        /* @conditional-compile-remove(call-readiness) */ videoState
+                      )}
+                      microphonePermissionGranted={micPermissionGrantedTrampoline(
+                        microphonePermissionGranted,
+                        /* @conditional-compile-remove(call-readiness) */ audioState
+                      )}
+                      /* @conditional-compile-remove(call-readiness) */
+                      onClickEnableDevicePermission={() => {
+                        setIsPermissionsModalDismissed(true);
+                      }}
+                      onClickVideoEffects={toggleVideoEffectsPane}
+                    />
+                  </Stack>
+                )}
+                <Stack
+                  styles={
+                    mobileWithPreview ? startCallButtonContainerStyleMobile : startCallButtonContainerStyleDesktop
                   }
+                  horizontalAlign={mobileWithPreview ? 'stretch' : 'end'}
                 >
-                  <LocalDeviceSettings
-                    {...options}
-                    {...localDeviceSettingsHandlers}
-                    cameraPermissionGranted={cameraPermissionGrantedTrampoline(
-                      cameraPermissionGranted,
-                      /* @conditional-compile-remove(call-readiness) */ videoState
-                    )}
-                    microphonePermissionGranted={micPermissionGrantedTrampoline(
-                      microphonePermissionGranted,
-                      /* @conditional-compile-remove(call-readiness) */ audioState
-                    )}
-                    /* @conditional-compile-remove(call-readiness) */
-                    onClickEnableDevicePermission={() => {
-                      setIsPermissionsModalDismissed(true);
-                    }}
-                    onClickVideoEffects={toggleVideoEffectsPane}
+                  <StartCallButton
+                    className={mobileWithPreview ? startCallButtonStyleMobile : startCallButtonStyleDesktop}
+                    onClick={startCall}
+                    disabled={disableStartCallButton}
+                    hideIcon={true}
                   />
                 </Stack>
-              )}
-              <Stack
-                styles={mobileWithPreview ? startCallButtonContainerStyleMobile : startCallButtonContainerStyleDesktop}
-                horizontalAlign={mobileWithPreview ? 'stretch' : 'end'}
-              >
-                <StartCallButton
-                  className={mobileWithPreview ? startCallButtonStyleMobile : startCallButtonStyleDesktop}
-                  onClick={startCall}
-                  disabled={disableStartCallButton}
-                  hideIcon={true}
-                />
               </Stack>
             </Stack>
           </Stack>
-        </Stack>
+        )}
         <Panel
           isOpen={isVideoEffectsPaneOpen}
           hasCloseButton={false}

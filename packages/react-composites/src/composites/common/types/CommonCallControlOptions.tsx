@@ -89,6 +89,11 @@ export type CommonCallControlOptions = {
    * Show, Hide or Disable the screen share button during a call.
    * @defaultValue true
    */
+  galleryViewButton?: boolean;
+  /**
+   * Show, Hide or Disable the screen share button during a call.
+   * @defaultValue true
+   */
   raiseHandButton?: boolean | { disabled: boolean };
   /**
    * Show, Hide or Disable the reaction button during a call.

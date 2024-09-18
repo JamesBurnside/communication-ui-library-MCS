@@ -121,35 +121,27 @@ export const selectionContainerStyle = (theme: ITheme, noSpeakerDropdownShown?: 
 /**
  * @private
  */
-export const titleContainerStyleDesktop = (theme: ITheme): string =>
-  mergeStyles(
-    {
-      fontSize: '1.2rem',
-      lineHeight: '1rem',
-      fontWeight: 600
-    },
-    configurationPageTextDecoration(theme)
-  );
+export const titleContainerStyleDesktop = mergeStyles({
+  fontSize: '1.2rem',
+  lineHeight: '1rem',
+  fontWeight: 600
+});
 
 /**
  * @private
  */
-export const titleContainerStyleMobile = (theme: ITheme): string =>
-  mergeStyles(
-    {
-      fontSize: '1.0625rem',
-      lineHeight: '1.375rem',
-      fontWeight: 600,
-      textAlign: 'center'
-    },
-    configurationPageTextDecoration(theme)
-  );
+export const titleContainerStyleMobile = mergeStyles({
+  fontSize: '1.0625rem',
+  lineHeight: '1.375rem',
+  fontWeight: 600,
+  textAlign: 'center'
+});
 
 /**
  * Ensure configuration page text is legible on top of a background image.
  * @private
  */
-const configurationPageTextDecoration = (theme: ITheme): IStyle => {
+export const configurationPageTextDecoration = (theme: ITheme): IStyle => {
   return {
     textShadow: `0px 0px 8px ${theme.palette.whiteTranslucent40}`,
     fill: theme.semanticColors.bodyText,
@@ -297,6 +289,16 @@ export const fillWidth = mergeStyles({
   width: '100%',
   position: 'relative'
 });
+
+/** @private */
+export const audioOnlyConfigurationCenteredContent = (): string =>
+  mergeStyles({
+    width: '100%',
+    position: 'relative',
+    height: `100%`,
+    maxWidth: `${CONFIGURATION_PAGE_SECTION_MAX_WIDTH_REM}rem`,
+    margin: '0 auto'
+  });
 
 /** @private */
 export const configurationCenteredContent = (fillsHeight: boolean, hasLogo?: boolean): string =>

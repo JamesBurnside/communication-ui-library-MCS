@@ -69,10 +69,10 @@ export const CallScreen = (props: CallScreenProps): JSX.Element => {
   const afterCallAdapterCreate = useCallback(
     async (adapter: CallAdapter): Promise<CallAdapter> => {
       subscribeAdapterEvents(adapter);
-      adapter.joinCall({
-        microphoneOn: false,
-        cameraOn: false
-      });
+      // adapter.joinCall({
+      //   microphoneOn: false,
+      //   cameraOn: false
+      // });
       return adapter;
     },
     [subscribeAdapterEvents]
@@ -173,13 +173,13 @@ const AzureCommunicationCallScreen = (props: AzureCommunicationCallScreenProps):
         callRinging: { url: '/assets/sounds/callRinging.mp3' },
         callBusy: { url: '/assets/sounds/callBusy.mp3' }
       },
-      reactionResources: {
-        likeReaction: { url: '/assets/reactions/likeEmoji.png', frameCount: 102 },
-        heartReaction: { url: '/assets/reactions/heartEmoji.png', frameCount: 102 },
-        laughReaction: { url: '/assets/reactions/laughEmoji.png', frameCount: 102 },
-        applauseReaction: { url: '/assets/reactions/clapEmoji.png', frameCount: 102 },
-        surprisedReaction: { url: '/assets/reactions/surprisedEmoji.png', frameCount: 102 }
-      },
+      // reactionResources: {
+      //   likeReaction: { url: '/assets/reactions/likeEmoji.png', frameCount: 102 },
+      //   heartReaction: { url: '/assets/reactions/heartEmoji.png', frameCount: 102 },
+      //   laughReaction: { url: '/assets/reactions/laughEmoji.png', frameCount: 102 },
+      //   applauseReaction: { url: '/assets/reactions/clapEmoji.png', frameCount: 102 },
+      //   surprisedReaction: { url: '/assets/reactions/surprisedEmoji.png', frameCount: 102 }
+      // },
       /* @conditional-compile-remove(PSTN-calls) */
       alternateCallerId: adapterArgs.alternateCallerId
     };

@@ -87,7 +87,7 @@ export class CallWithChatBackedCallAdapter implements CallAdapter {
   };
   public getState = (): CallAdapterState =>
     callAdapterStateFromCallWithChatAdapterState(this.callWithChatAdapter.getState());
-  public dispose = (): void => this.callWithChatAdapter.dispose();
+  public dispose = (): Promise<void> => this.callWithChatAdapter.dispose();
   public joinCall = (options?: boolean | JoinCallOptions): Call | undefined => {
     if (typeof options === 'boolean') {
       return this.callWithChatAdapter.joinCall(options);

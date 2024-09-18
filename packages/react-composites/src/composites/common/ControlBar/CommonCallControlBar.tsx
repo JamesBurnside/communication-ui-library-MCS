@@ -343,6 +343,10 @@ export const CommonCallControlBar = (props: CommonCallControlBarProps & Containe
     props.isCaptionsSupported &&
     /* @conditional-compile-remove(acs-close-captions) */ isEnabled(options.captionsButton);
 
+  const holdButtonIsEnabled = isEnabled(options.holdButton);
+  const dTMFButtonIsEnabled = isEnabled(options.dtmfDialerButton);
+  const galleryViewButtonIsEnabled = isEnabled(options.galleryViewButton);
+
   const showTeamsMeetingPhoneCallButton = isEnabled(options?.teamsMeetingPhoneCallButton);
 
   const showDesktopMoreButton =
@@ -535,9 +539,11 @@ export const CommonCallControlBar = (props: CommonCallControlBarProps & Containe
                         onUserSetGalleryLayout={props.onUserSetGalleryLayout}
                         userSetGalleryLayout={props.userSetGalleryLayout}
                         dtmfDialerPresent={props.dtmfDialerPresent}
-                        onSetDialpadPage={props.onSetDialpadPage}
+                        onSetDialpadPage={dTMFButtonIsEnabled ? props.onSetDialpadPage : undefined}
                         teamsMeetingPhoneCallEnable={showTeamsMeetingPhoneCallButton}
                         onMeetingPhoneInfoClick={props.onToggleTeamsMeetingConferenceModal}
+                        hideGalleryViewButton={!galleryViewButtonIsEnabled}
+                        hideHoldButton={!holdButtonIsEnabled}
                       />
                     )}
                     <EndCall

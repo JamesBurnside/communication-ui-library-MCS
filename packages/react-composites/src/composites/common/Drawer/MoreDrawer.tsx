@@ -178,9 +178,11 @@ export const MoreDrawer = (props: MoreDrawerProps): JSX.Element => {
   const localeStrings = useLocale();
   /* @conditional-compile-remove(PSTN-calls) */ /* @conditional-compile-remove(one-to-n-calling) */
   const holdButtonProps = usePropsFor(HoldButton);
+  const drawerSelectionOptions = inferCallWithChatControlOptions(props.callControls);
 
   const callees = useSelector(getTargetCallees);
-  const allowDtmfDialer = showDtmfDialer(callees);
+  const allowDtmfDialer =
+    showDtmfDialer(callees) && drawerSelectionOptions !== false && isEnabled(drawerSelectionOptions?.dtmfDialerButton);
   const [dtmfDialerChecked, setDtmfDialerChecked] = useState<boolean>(props.dtmfDialerPresent ?? false);
 
   const raiseHandButtonProps = usePropsFor(RaiseHandButton) as RaiseHandButtonProps;
@@ -200,8 +202,6 @@ export const MoreDrawer = (props: MoreDrawerProps): JSX.Element => {
     },
     [speakers, onSelectSpeaker, onLightDismiss]
   );
-
-  const drawerSelectionOptions = inferCallWithChatControlOptions(props.callControls);
 
   const showCaptionsButton =
     props.isCaptionsSupported &&
@@ -366,9 +366,13 @@ export const MoreDrawer = (props: MoreDrawerProps): JSX.Element => {
   };
 
   /* @conditional-compile-remove(gallery-layout-composite) */
-  galleryLayoutOptions.subMenuProps?.push(galleryOption);
+  if (drawerSelectionOptions !== false) {
+    galleryLayoutOptions.subMenuProps?.push(galleryOption);
+  }
 
-  drawerMenuItems.push(galleryLayoutOptions);
+  if (drawerSelectionOptions !== false && isEnabled(drawerSelectionOptions?.galleryViewButton)) {
+    drawerMenuItems.push(galleryLayoutOptions);
+  }
 
   if (drawerSelectionOptions !== false && isEnabled(drawerSelectionOptions?.peopleButton)) {
     drawerMenuItems.push({

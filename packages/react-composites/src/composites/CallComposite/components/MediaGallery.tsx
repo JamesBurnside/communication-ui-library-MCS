@@ -15,7 +15,7 @@ import { VideoGalleryLayout } from '@internal/react-components';
 import { _useContainerWidth, _useContainerHeight } from '@internal/react-components';
 import { usePropsFor } from '../hooks/usePropsFor';
 import { AvatarPersona, AvatarPersonaDataCallback } from '../../common/AvatarPersona';
-import { keyframes, memoizeFunction, mergeStyles, Stack } from '@fluentui/react';
+import { keyframes, memoizeFunction, mergeStyles, Stack, useTheme } from '@fluentui/react';
 import { useHandlers } from '../hooks/useHandlers';
 import { useSelector } from '../hooks/useSelector';
 import { localVideoCameraCycleButtonSelector } from '../selectors/LocalVideoTileSelector';
@@ -69,6 +69,7 @@ export interface MediaGalleryProps {
   captionsOptions?: {
     height: 'full' | 'default';
   };
+  isSpeakingDecoration?: 'border' | 'pulse' | 'none' | 'borderPulse';
 }
 
 /**
@@ -82,7 +83,8 @@ export const MediaGallery = (props: MediaGalleryProps): JSX.Element => {
     setPromptProps,
     hideSpotlightButtons,
     videoTilesOptions,
-    captionsOptions
+    captionsOptions,
+    isSpeakingDecoration = 'border'
   } = props;
 
   const videoGalleryProps = usePropsFor(VideoGallery);
@@ -118,6 +120,14 @@ export const MediaGallery = (props: MediaGalleryProps): JSX.Element => {
     [videoGalleryProps.remoteParticipants]
   );
 
+  let remoteParticipants = videoGalleryProps.remoteParticipants;
+  if (props.isSpeakingDecoration !== 'border' && props.isSpeakingDecoration !== 'borderPulse') {
+    // If the decoration is not border, we don't need to check for speaking participants
+    remoteParticipants = remoteParticipants.map((participant) => {
+      return { ...participant, isSpeaking: false };
+    });
+  }
+
   const volumeLevel = React.useRef<number>(0.5);
   const pulseDiv = React.useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -132,17 +142,19 @@ export const MediaGallery = (props: MediaGalleryProps): JSX.Element => {
     updatePulse(volumeLevel.current);
   }, [pulseDiv, remoteParticipantsAndIsSpeaking]);
 
+  const themePrimary = useTheme().palette.themePrimary;
+
   const onRenderAvatar = useCallback(
     (userId?: string, options?: CustomAvatarOptions) => {
-      const showSpeakingAnimation = remoteParticipantsAndIsSpeaking.some(
-        (participant) => participant.id === userId && participant.isSpeaking
-      );
+      const showSpeakingAnimation =
+        (isSpeakingDecoration === 'pulse' || isSpeakingDecoration === 'borderPulse') &&
+        remoteParticipantsAndIsSpeaking.some((participant) => participant.id === userId && participant.isSpeaking);
       return (
         <Stack className={mergeStyles({ position: 'absolute', height: '100%', width: '100%' })}>
           <Stack styles={{ root: { margin: 'auto', maxHeight: '100%' } }}>
             {options?.coinSize && (
               <div
-                className={showSpeakingAnimation ? pulsingAudioClassname : undefined}
+                className={showSpeakingAnimation ? pulsingAudioClassname(themePrimary) : undefined}
                 ref={showSpeakingAnimation ? pulseDiv : undefined}
               >
                 <AvatarPersona userId={userId} {...options} dataProvider={props.onFetchAvatarPersonaData} />
@@ -152,7 +164,7 @@ export const MediaGallery = (props: MediaGalleryProps): JSX.Element => {
         </Stack>
       );
     },
-    [props.onFetchAvatarPersonaData, remoteParticipantsAndIsSpeaking]
+    [props.onFetchAvatarPersonaData, remoteParticipantsAndIsSpeaking, isSpeakingDecoration, themePrimary]
   );
 
   const remoteVideoTileMenuOptions: false | VideoTileContextualMenuProps | VideoTileDrawerMenuProps = useMemo(() => {
@@ -225,6 +237,7 @@ export const MediaGallery = (props: MediaGalleryProps): JSX.Element => {
     return (
       <VideoGallery
         {...videoGalleryProps}
+        remoteParticipants={remoteParticipants}
         videoTilesOptions={videoTilesOptions}
         localVideoViewOptions={localVideoViewOptions}
         remoteVideoViewOptions={remoteVideoViewOptions}
@@ -281,7 +294,8 @@ export const MediaGallery = (props: MediaGalleryProps): JSX.Element => {
     onStopLocalSpotlightWithPrompt,
     onStartRemoteSpotlightWithPrompt,
     onStopRemoteSpotlightWithPrompt,
-    layoutBasedOnTilePosition
+    layoutBasedOnTilePosition,
+    remoteParticipants
   ]);
 
   return (
@@ -308,24 +322,52 @@ export const pulseFrames = memoizeFunction(() =>
 );
 
 /** @private */
-export const pulsingAudioClassname = mergeStyles({
-  borderRadius: '50%',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  position: 'relative',
-  padding: '1rem',
-  '::before': {
-    content: '""',
-    width: '100%',
-    height: '100%',
-    // backgroundColor: 'rgba(7, 127, 171, 0.7)',
-    border: '0.25rem solid rgba(7, 127, 171, 0.7)',
+export const pulsingAudioClassname = (themePrimary: string) => {
+  const rgb = hexToRgb(themePrimary);
+  return mergeStyles({
     borderRadius: '50%',
-    position: 'absolute',
-    animationName: pulseFrames(),
-    animationDuration: '1.5s',
-    animationIterationCount: 'infinite',
-    animationTimingFunction: 'ease-in-out'
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+    padding: '1rem',
+    '::before': {
+      content: '""',
+      width: '100%',
+      height: '100%',
+      border: `0.25rem solid rgba(${rgb.r},${rgb.g},${rgb.b}, 0.7)`,
+      borderRadius: '50%',
+      position: 'absolute',
+      animationName: pulseFrames(),
+      animationDuration: '1.5s',
+      animationIterationCount: 'infinite',
+      animationTimingFunction: 'ease-in-out'
+    }
+  });
+};
+
+function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  // Remove the leading '#' if it's present
+  hex = hex.replace(/^#/, '');
+
+  // Parse the hex string into red, green, and blue components
+  let bigint;
+  if (hex.length === 3) {
+    // For short hex code (#RGB), expand to full form (#RRGGBB)
+    bigint = parseInt(
+      hex
+        .split('')
+        .map((c) => c + c)
+        .join(''),
+      16
+    );
+  } else {
+    bigint = parseInt(hex, 16);
   }
-});
+
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+
+  return { r, g, b };
+}

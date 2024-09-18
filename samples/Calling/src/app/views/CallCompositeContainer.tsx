@@ -41,20 +41,32 @@ export const CallCompositeContainer = (props: CallCompositeContainerProps): JSX.
   }, []);
 
   const options: CallCompositeOptions = useMemo(
-    () => ({
-      callControls: {
-        cameraButton: false,
-        raiseHandButton: false,
-        screenShareButton: false,
-        moreButton: false,
-        reactionButton: false
-      },
-      deviceChecks: {
-        camera: 'doNotPrompt',
-        microphone: 'required'
-      },
-      autoShowDtmfDialer: true
-    }),
+    () =>
+      ({
+        configurationPage: {
+          audioOnly: true
+        },
+        callControls: {
+          cameraButton: false,
+          raiseHandButton: false,
+          screenShareButton: false,
+          moreButton: true,
+          reactionButton: false,
+          galleryViewButton: false,
+          dtmfDialerButton: false,
+          captionsButton: false,
+          holdButton: false,
+          peopleButton: false
+        },
+        deviceChecks: {
+          camera: 'doNotPrompt',
+          microphone: 'required'
+        },
+        autoShowDtmfDialer: true,
+        galleryOptions: {
+          isSpeakingDecoration: 'pulse'
+        }
+      }) as CallCompositeOptions,
     []
   );
 

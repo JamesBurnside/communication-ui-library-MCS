@@ -153,6 +153,10 @@ export interface LocalVideoTileOptions {
  * @public
  */
 export type CallCompositeOptions = {
+  configurationPage?: {
+    audioOnly?: boolean;
+  };
+
   captionsBanner?: {
     height: 'full' | 'default';
   };
@@ -251,6 +255,11 @@ export type CallCompositeOptions = {
      * Layout for the gallery when the call starts
      */
     layout?: VideoGalleryLayout;
+
+    /**
+     * Options for UX when a user is speaking
+     */
+    isSpeakingDecoration?: 'border' | 'pulse' | 'none' | 'borderPulse';
   };
   /**
    * Options for end of call survey
@@ -566,6 +575,7 @@ const MainScreen = (props: MainScreenProps): JSX.Element => {
           capabilitiesChangedNotificationBarProps={capabilitiesChangedNotificationBarProps}
           logo={props.options?.branding?.logo}
           backgroundImage={props.options?.branding?.backgroundImage}
+          audioOnly={props.options?.configurationPage?.audioOnly ?? false}
         />
       );
       break;

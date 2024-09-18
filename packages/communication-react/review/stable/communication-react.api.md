@@ -592,6 +592,9 @@ export type CallCompositeIcons = {
 
 // @public
 export type CallCompositeOptions = {
+    configurationPage?: {
+        audioOnly?: boolean;
+    };
     captionsBanner?: {
         height: 'full' | 'default';
     };
@@ -609,6 +612,7 @@ export type CallCompositeOptions = {
     disableAutoShowDtmfDialer?: boolean;
     galleryOptions?: {
         layout?: VideoGalleryLayout;
+        isSpeakingDecoration?: 'border' | 'pulse' | 'none' | 'borderPulse';
     };
     surveyOptions?: {
         disableSurvey?: boolean;
@@ -1904,6 +1908,7 @@ export type CommonCallControlOptions = {
         disabled: boolean;
     };
     moreButton?: boolean;
+    galleryViewButton?: boolean;
     raiseHandButton?: boolean | {
         disabled: boolean;
     };
@@ -2814,7 +2819,7 @@ export type DisplayNameChangedListener = (event: {
 
 // @public
 interface Disposable_2 {
-    dispose(): void;
+    dispose(): Promise<void>;
 }
 export { Disposable_2 as Disposable }
 

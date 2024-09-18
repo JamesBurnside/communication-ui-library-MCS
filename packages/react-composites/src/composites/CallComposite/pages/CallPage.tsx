@@ -158,6 +158,7 @@ export const CallPage = (props: CallPageProps): JSX.Element => {
           hideSpotlightButtons={options?.spotlight?.hideSpotlightButtons}
           videoTilesOptions={options?.videoTilesOptions}
           captionsOptions={options?.captionsBanner}
+          isSpeakingDecoration={options?.galleryOptions?.isSpeakingDecoration}
         />
       );
     }

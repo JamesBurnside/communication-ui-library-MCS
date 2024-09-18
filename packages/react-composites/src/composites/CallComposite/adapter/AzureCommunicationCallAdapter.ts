@@ -633,10 +633,10 @@ export class AzureCommunicationCallAdapter<AgentType extends CallAgent | TeamsCa
     this.muteAllRemoteParticipants.bind(this);
   }
 
-  public dispose(): void {
+  public async dispose(): Promise<void> {
     this.resetDiagnosticsForwarder();
     this.callClient.offStateChange(this.onClientStateChange);
-    this.callAgent.dispose();
+    await this.callAgent.dispose();
   }
 
   public async queryCameras(): Promise<VideoDeviceInfo[]> {
