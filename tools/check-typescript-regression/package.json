@@ -19,7 +19,7 @@
     "lint:quiet": "rushx lint -- --quiet"
   },
   "dependencies": {
-    "@azure/communication-react": "1.0.0-custom.3"
+    "@azure/communication-react": "1.0.0-custom.4"
   },
   "devDependencies": {
     "eslint": "^8.57.0",
