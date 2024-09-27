@@ -63,6 +63,7 @@ import { SurveyPage } from './pages/SurveyPage';
 import { useAudio } from '../common/AudioProvider';
 
 import { complianceBannerSelector } from './selectors/complianceBannerSelector';
+import { devicePermissionSelector } from './selectors/devicePermissionSelector';
 
 /**
  * Props for {@link CallComposite}.
@@ -368,6 +369,7 @@ const isShowing = (overrideSidePane?: InjectedSidePaneProps): boolean => {
 
 const MainScreen = (props: MainScreenProps): JSX.Element => {
   const adapter = useAdapter();
+  const { video: cameraHasPermission, audio: micHasPermission } = useSelector(devicePermissionSelector);
   const { camerasCount, microphonesCount } = useSelector(deviceCountSelector);
   const hasCameras = camerasCount > 0;
   const hasMicrophones = microphonesCount > 0;
@@ -394,7 +396,10 @@ const MainScreen = (props: MainScreenProps): JSX.Element => {
     // Ensure we re-ask for permissions if the number of devices goes from 0 -> n during a call
     // as we cannot request permissions when there are no devices.
     hasCameras,
-    hasMicrophones
+    hasMicrophones,
+    // Ensure we re-query for devices when permission for the device is granted.
+    cameraHasPermission,
+    micHasPermission
   ]);
 
   const { callInvitationUrl, onFetchAvatarPersonaData, onFetchParticipantMenuItems } = props;
