@@ -92,12 +92,14 @@ export const createDefaultChatHandlers = memoizeOne(
           /* @conditional-compile-remove(file-sharing-acs) */ hasAttachments ||
           /* @conditional-compile-remove(rich-text-editor-image-upload) */ hasImages
         ) {
+          const metadata = {
+            ...(options?.metadata || {})
+          };
+          if ('attachments' in options) {
+            metadata.fileSharingMetadata = JSON.stringify(options.attachments);
+          }
           const chatSDKOptions: SendMessageOptions = {
-            metadata: {
-              ...options?.metadata,
-              /* @conditional-compile-remove(file-sharing-acs) */
-              fileSharingMetadata: JSON.stringify(options.attachments)
-            },
+            metadata,
             /* @conditional-compile-remove(rich-text-editor-image-upload) */
             attachments: imageAttachments,
             type: options.type

@@ -12,14 +12,16 @@ import '@testing-library/jest-dom';
 /* @conditional-compile-remove(rich-text-editor-composite-support) */
 import { COMPOSITE_LOCALE_ZH_TW } from '../localization/locales/zh-TW/CompositeLocale';
 /* @conditional-compile-remove(rich-text-editor-composite-support) */
-import { ChatComposite, ChatCompositeProps } from './ChatComposite';
+import { ChatComposite } from './ChatComposite';
+/* @conditional-compile-remove(rich-text-editor-image-upload) */
+import { ChatCompositeProps } from './ChatComposite';
 /* @conditional-compile-remove(rich-text-editor-composite-support) */
 import React from 'react';
-/* @conditional-compile-remove(rich-text-editor-composite-support) */
+/* @conditional-compile-remove(rich-text-editor-image-upload) */
 import { RichTextSendBoxProps } from '@internal/react-components';
 /* @conditional-compile-remove(rich-text-editor-composite-support) */
 import { RichTextSendBoxWrapper } from '../common/RichTextSendBoxWrapper';
-/* @conditional-compile-remove(rich-text-editor-composite-support) */
+/* @conditional-compile-remove(rich-text-editor-image-upload) */
 import { removeImageTags } from '@internal/acs-ui-common';
 // Mock the richTextSendBoxWrapper component as it's lazy loaded in ChatComposite
 /* @conditional-compile-remove(rich-text-editor-composite-support) */
@@ -107,7 +109,7 @@ describe('ChatComposite', () => {
   });
 });
 
-/* @conditional-compile-remove(rich-text-editor-composite-support) */
+/* @conditional-compile-remove(rich-text-editor-image-upload) */
 describe('ChatComposite - text only mode', () => {
   const createMockChatAdapter = (textOnlyChat: boolean): ChatAdapter => {
     const chatAdapter = {} as ChatAdapter;

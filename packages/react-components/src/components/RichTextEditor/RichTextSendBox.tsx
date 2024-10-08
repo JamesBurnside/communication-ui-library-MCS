@@ -379,6 +379,7 @@ export const RichTextSendBox = (props: RichTextSendBoxProps): JSX.Element => {
       if (hasIncompleteImageUploads) {
         errorMessage = strings.imageUploadsPendingError || '';
       }
+      /* @conditional-compile-remove(file-sharing-acs) */
       setAttachmentUploadsPendingError({
         message: errorMessage,
         timestamp: Date.now(),
@@ -392,16 +393,12 @@ export const RichTextSendBox = (props: RichTextSendBoxProps): JSX.Element => {
     // Message can be empty if there is a valid attachment upload
     if (hasContent || /* @conditional-compile-remove(file-sharing-acs) */ isAttachmentUploadCompleted(attachments)) {
       const sendMessage = (content: string): void => {
-        onSendMessage(
-          content,
-          /* @conditional-compile-remove(file-sharing-acs) */ /* @conditional-compile-remove(rich-text-editor-composite-support) */
-          {
-            /* @conditional-compile-remove(file-sharing-acs) */
-            attachments: toAttachmentMetadata(attachments),
-            /* @conditional-compile-remove(rich-text-editor-composite-support) */
-            type: 'html'
-          }
-        );
+        onSendMessage(content, {
+          /* @conditional-compile-remove(file-sharing-acs) */
+          attachments: toAttachmentMetadata(attachments),
+          /* @conditional-compile-remove(rich-text-editor-composite-support) */
+          type: 'html'
+        });
         setContentValue('');
         editorComponentRef.current?.setEmptyContent();
         editorComponentRef.current?.focus();

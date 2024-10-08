@@ -58,20 +58,14 @@ module.exports = {
     'image-overlay-theme',
     // Feature for local recording notification for teams meetings
     'local-recording-notification',
-    // Feature for Rich Text Editor (RTE) support
-    'rich-text-editor',
-    // Feature for Rich Text Editor (RTE) composite support
-    "rich-text-editor-composite-support",
-    // Feature for Rich Text Editor (RTE) image upload support
-    "rich-text-editor-image-upload",
-    // Feature to support file sharing in ACS chats
-    "file-sharing-acs",
     // Beta feature for joining calls using teams token
     "teams-identity-support-beta",
     // Soft Mute feature for ACS calls and Interop calls
     "soft-mute",
     // feature for breakout rooms
     "breakout-rooms",
+    // Feature for Rich Text Editor (RTE) image upload support
+    "rich-text-editor-image-upload",
   ],
   stable: [
     // Demo feature. Used in live-documentation of conditional compilation.
@@ -106,5 +100,11 @@ module.exports = {
     "call-participants-locator",
     // feature for tracking environment info API different than unsupported browser. stable use of environment info affects other components possibly sooner
     "calling-environment-info",
+    // Feature for Rich Text Editor (RTE) support
+    'rich-text-editor',
+    // Feature for Rich Text Editor (RTE) composite support
+    "rich-text-editor-composite-support",
+    // Feature to support file sharing in ACS chats
+    "file-sharing-acs",
   ]
 }
